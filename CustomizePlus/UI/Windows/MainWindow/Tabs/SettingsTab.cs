@@ -1,19 +1,14 @@
-﻿using CustomizePlus.Armatures.Services;
+using CustomizePlus.Armatures.Services;
 using CustomizePlus.Configuration.Data;
+using CustomizePlus.Configuration.Services;
 using CustomizePlus.Core.Helpers;
 using CustomizePlus.Core.Services;
 using CustomizePlus.Templates;
-using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.ImGuiNotification;
 using Dalamud.Interface.Utility;
 using Dalamud.Plugin;
-using OtterGui;
-using OtterGui.Classes;
-using OtterGui.Raii;
-using OtterGui.Widgets;
-using System.Diagnostics;
-using System.Numerics;
+using Dalamud.Utility;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs;
 
@@ -24,6 +19,7 @@ public class SettingsTab
 
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly PluginConfiguration _configuration;
+    private readonly ConfigurationService _configurationService;
     private readonly ArmatureManager _armatureManager;
     private readonly HookingService _hookingService;
     private readonly TemplateEditorManager _templateEditorManager;
@@ -35,6 +31,7 @@ public class SettingsTab
     public SettingsTab(
         IDalamudPluginInterface pluginInterface,
         PluginConfiguration configuration,
+        ConfigurationService configurationService,
         ArmatureManager armatureManager,
         HookingService hookingService,
         TemplateEditorManager templateEditorManager,
@@ -45,6 +42,7 @@ public class SettingsTab
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
+        _configurationService = configurationService;
         _armatureManager = armatureManager;
         _hookingService = hookingService;
         _templateEditorManager = templateEditorManager;
@@ -57,18 +55,18 @@ public class SettingsTab
     public void Draw()
     {
         UiHelpers.SetupCommonSizes();
-        using var child = ImRaii.Child("MainWindowChild");
+        using var child = Im.Child.Begin("MainWindowChild"u8);
         if (!child)
             return;
 
         DrawGeneralSettings();
 
-        ImGui.NewLine();
-        ImGui.NewLine();
-        ImGui.NewLine();
-        ImGui.NewLine();
+        Im.Line.New();
+        Im.Line.New();
+        Im.Line.New();
+        Im.Line.New();
 
-        using (var child2 = ImRaii.Child("SettingsChild"))
+        using (var child2 = Im.Child.Begin("SettingsChild"u8))
         {
             DrawProfileApplicationSettings();
             DrawInterface();
@@ -89,7 +87,7 @@ public class SettingsTab
 
     private void DrawPluginEnabledCheckbox()
     {
-        using (var disabled = ImRaii.Disabled(_templateEditorManager.IsEditorActive))
+        using (var disabled = Im.Disabled(_templateEditorManager.IsEditorActive))
         {
             var isChecked = _configuration.PluginEnabled;
 
@@ -98,7 +96,7 @@ public class SettingsTab
                     "Globally enables or disables all plugin functionality.", ref isChecked))
             {
                 _configuration.PluginEnabled = isChecked;
-                _configuration.Save();
+                _configurationService.Save(PluginConfigurationChange.PluginState);
                 _hookingService.ReloadHooks();
             }
         }
@@ -108,7 +106,7 @@ public class SettingsTab
     #region Profile application settings
     private void DrawProfileApplicationSettings()
     {
-        var isShouldDraw = ImGui.CollapsingHeader("Profile Application");
+        var isShouldDraw = Im.Tree.Header("Profile Application"u8);
 
         if (!isShouldDraw)
             return;
@@ -128,7 +126,7 @@ public class SettingsTab
                 "Apply profile for your character in your main character window, if it is set.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInCharacterWindow = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -141,7 +139,7 @@ public class SettingsTab
                 "Apply profile for your character in your try-on, dye preview or glamour plate window, if it is set.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInTryOn = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -154,7 +152,7 @@ public class SettingsTab
                 "Apply appropriate profile for the adventurer card you are currently looking at.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInCards = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -167,7 +165,7 @@ public class SettingsTab
                 "Apply appropriate profile for the character you are currently inspecting.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInInspect = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -180,7 +178,7 @@ public class SettingsTab
                 "Apply appropriate profile for the character you have currently selected on character select screen during login.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInLobby = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -189,7 +187,7 @@ public class SettingsTab
     #region Chat Commands Settings
     private void DrawCommands()
     {
-        var isShouldDraw = ImGui.CollapsingHeader("Chat Commands");
+        var isShouldDraw = Im.Tree.Header("Chat Commands"u8);
 
         if (!isShouldDraw)
             return;
@@ -205,7 +203,7 @@ public class SettingsTab
                 "Controls whether successful execution of chat commands will be acknowledged by separate chat message or not.", ref isChecked))
         {
             _configuration.CommandSettings.PrintSuccessMessages = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Command);
         }
     }
     #endregion
@@ -214,7 +212,7 @@ public class SettingsTab
 
     private void DrawInterface()
     {
-        var isShouldDraw = ImGui.CollapsingHeader("Interface");
+        var isShouldDraw = Im.Tree.Header("Interface"u8);
 
         if (!isShouldDraw)
             return;
@@ -234,10 +232,10 @@ public class SettingsTab
 
         UiHelpers.DefaultLineSpace();
 
-        if (Widget.DoubleModifierSelector("Template Deletion Modifier",
-            "A modifier you need to hold while clicking the Delete Template button for it to take effect.", 100 * ImGuiHelpers.GlobalScale,
+        if (KeySelector.DoubleModifier("Template Deletion Modifier"u8,
+            "A modifier you need to hold while clicking the Delete Template button for it to take effect."u8, 100 * ImGuiHelpers.GlobalScale,
             _configuration.UISettings.DeleteTemplateModifier, v => _configuration.UISettings.DeleteTemplateModifier = v))
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Interface);
     }
 
     private void DrawOpenWindowAtStart()
@@ -249,7 +247,7 @@ public class SettingsTab
         {
             _configuration.UISettings.OpenWindowAtStart = isChecked;
 
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Interface);
         }
     }
 
@@ -263,7 +261,7 @@ public class SettingsTab
             _pluginInterface.UiBuilder.DisableCutsceneUiHide = !isChecked;
             _configuration.UISettings.HideWindowInCutscene = isChecked;
 
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Interface);
         }
     }
 
@@ -276,7 +274,7 @@ public class SettingsTab
         {
             _pluginInterface.UiBuilder.DisableUserUiHide = !isChecked;
             _configuration.UISettings.HideWindowWhenUiHidden = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Interface);
         }
     }
 
@@ -289,7 +287,7 @@ public class SettingsTab
         {
             _pluginInterface.UiBuilder.DisableGposeUiHide = !isChecked;
             _configuration.UISettings.HideWindowInGPose = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Interface);
         }
     }
 
@@ -301,7 +299,7 @@ public class SettingsTab
                 "Controls whether folders in template and profile lists are open by default or not.", ref isChecked))
         {
             _configuration.UISettings.FoldersDefaultOpen = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Interface);
         }
     }
 
@@ -313,7 +311,7 @@ public class SettingsTab
                 "Controls whether editor character will be automatically set to the current character during login.", ref isChecked))
         {
             _configuration.EditorConfiguration.SetPreviewToCurrentCharacterOnLogin = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Editor);
         }
     }
 
@@ -323,7 +321,7 @@ public class SettingsTab
 
     private void DrawExternal()
     {
-        var isShouldDraw = ImGui.CollapsingHeader("Integrations");
+        var isShouldDraw = Im.Tree.Header("Integrations"u8);
 
         if (!isShouldDraw)
             return;
@@ -340,7 +338,7 @@ public class SettingsTab
         {
             _configuration.IntegrationSettings.PenumbraPCPIntegrationEnabled = isChecked;
             _pcpService.SetEnabled(isChecked);
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Integration);
         }
     }
 
@@ -350,15 +348,15 @@ public class SettingsTab
     // Advanced Settings
     private void DrawAdvancedSettings()
     {
-        var isShouldDraw = ImGui.CollapsingHeader("Advanced");
+        var isShouldDraw = Im.Tree.Header("Advanced"u8);
 
         if (!isShouldDraw)
             return;
 
-        ImGui.NewLine();
+        Im.Line.New();
         CtrlHelper.LabelWithIcon(FontAwesomeIcon.ExclamationTriangle,
             "These are advanced settings. Enable them at your own risk.");
-        ImGui.NewLine();
+        Im.Line.New();
 
         DrawEnableRootPositionCheckbox();
         DrawDebugModeCheckbox();
@@ -371,7 +369,7 @@ public class SettingsTab
                 "Enables ability to edit the root bones.", ref isChecked))
         {
             _configuration.EditorConfiguration.RootPositionEditingEnabled = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.Editor);
         }
     }
 
@@ -382,7 +380,7 @@ public class SettingsTab
                 "Enables debug mode. Requires plugin restart for all features to become properly initialized.", ref isChecked))
         {
             _configuration.DebuggingModeEnabled = isChecked;
-            _configuration.Save();
+            _configurationService.Save(PluginConfigurationChange.General);
         }
     }
 
@@ -391,52 +389,48 @@ public class SettingsTab
     #region Support Area
     private void DrawSupportButtons()
     {
-        var width = ImGui.CalcTextSize("Copy Support Info to Clipboard").X + ImGui.GetStyle().FramePadding.X * 2;
-        var xPos = ImGui.GetWindowWidth() - width;
+        var width = Im.Font.CalculateSize("Copy Support Info to Clipboard"u8).X + Im.Style.FramePadding.X * 2;
+        var xPos = Im.Window.Width - width;
         // Respect the scroll bar width.
-        if (ImGui.GetScrollMaxY() > 0)
-            xPos -= ImGui.GetStyle().ScrollbarSize + ImGui.GetStyle().FramePadding.X;
+        if (Im.Scroll.MaximumY > 0)
+            xPos -= Im.Style.ScrollbarSize + Im.Style.FramePadding.X;
 
-        ImGui.SetCursorPos(new Vector2(xPos, 0));
+        Im.Cursor.Position = new Vector2(xPos, 0);
         DrawUrlButton("Join Discord for Support", "https://discord.gg/KvGJCCnG8t", DiscordColor, width,
             "Join Discord server run by community volunteers who can help you with your questions. Opens https://discord.gg/KvGJCCnG8t in your web browser.");
 
-        ImGui.SetCursorPos(new Vector2(xPos, ImGui.GetFrameHeightWithSpacing()));
+        Im.Cursor.Position = new Vector2(xPos, Im.Style.FrameHeightWithSpacing);
         DrawUrlButton("Support developer using Ko-fi", "https://ko-fi.com/risadev", DonateColor, width,
             "Any donations made are voluntary and treated as a token of gratitude for work done on Customize+. Opens https://ko-fi.com/risadev in your web browser.");
 
-        ImGui.SetCursorPos(new Vector2(xPos, 2 * ImGui.GetFrameHeightWithSpacing()));
-        if (ImGui.Button("Copy Support Info to Clipboard"))
+        Im.Cursor.Position = new Vector2(xPos, 2 * Im.Style.FrameHeightWithSpacing);
+        if (Im.Button("Copy Support Info to Clipboard"u8))
         {
             var text = _supportLogBuilderService.BuildSupportLog();
-            ImGui.SetClipboardText(text);
+            Im.Clipboard.Set(text);
             _messageService.NotificationMessage($"Copied Support Info to Clipboard.", NotificationType.Success, false);
         }
 
-        ImGui.SetCursorPos(new Vector2(xPos, 3 * ImGui.GetFrameHeightWithSpacing()));
-        if (ImGui.Button("Show update history", new Vector2(width, 0)))
+        Im.Cursor.Position = new Vector2(xPos, 3 * Im.Style.FrameHeightWithSpacing);
+        if (Im.Button("Show update history"u8, new Vector2(width, 0)))
             _changeLog.Changelog.ForceOpen = true;
     }
 
     /// <summary> Draw a button to open some url. </summary>
     private void DrawUrlButton(string text, string url, uint buttonColor, float width, string? description = null)
     {
-        using var color = ImRaii.PushColor(ImGuiCol.Button, buttonColor);
-        if (ImGui.Button(text, new Vector2(width, 0)))
+        using var color = ImGuiColor.Button.Push(buttonColor);
+        if (Im.Button(text, new Vector2(width, 0)))
             try
             {
-                var process = new ProcessStartInfo(url)
-                {
-                    UseShellExecute = true,
-                };
-                Process.Start(process);
+                Util.OpenLink(url);
             }
             catch
             {
                 _messageService.NotificationMessage($"Unable to open url {url}.", NotificationType.Error, false);
             }
 
-        ImGuiUtil.HoverTooltip(description ?? $"Open {url}");
+        UiHelpers.DrawHoverTooltip(description ?? $"Open {url}");
     }
     #endregion
 }

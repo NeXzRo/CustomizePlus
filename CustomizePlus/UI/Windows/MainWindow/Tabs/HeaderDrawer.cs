@@ -1,16 +1,13 @@
-﻿using Dalamud.Interface.Utility;
 using Dalamud.Interface;
-using Dalamud.Bindings.ImGui;
-using OtterGui;
-using System;
-using System.Linq;
-using OtterGui.Raii;
-using System.Numerics;
+using Dalamud.Interface.Utility;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs;
 
 public static class HeaderDrawer
 {
+    private static float ButtonWidth
+        => Im.Style.FrameHeight + 16 * ImGuiHelpers.GlobalScale;
+
     public struct Button
     {
         public static readonly Button Invisible = new()
@@ -31,7 +28,7 @@ public static class HeaderDrawer
         public Button()
         {
             Visible = true;
-            Width = ImGui.GetFrameHeightWithSpacing();
+            Width = ButtonWidth;
             BorderColor = ColorId.HeaderButtons.Value();
             TextColor = ColorId.HeaderButtons.Value();
             Disabled = false;
@@ -42,12 +39,12 @@ public static class HeaderDrawer
             if (!Visible)
                 return;
 
-            using var color = ImRaii.PushColor(ImGuiCol.Border, BorderColor)
-                .Push(ImGuiCol.Text, TextColor, TextColor != 0);
-            if (ImGuiUtil.DrawDisabledButton(Icon.ToIconString(), new Vector2(Width, ImGui.GetFrameHeight()), string.Empty, Disabled, true))
+            using var color = ImGuiColor.Border.Push(BorderColor)
+                .Push(ImGuiColor.Text, TextColor, TextColor != 0);
+            if (UiHelpers.DrawIconButton(Icon, new Vector2(Width, Im.Style.FrameHeight), string.Empty, Disabled))
                 OnClick?.Invoke();
             color.Pop();
-            ImGuiUtil.HoverTooltip(Description);
+            UiHelpers.DrawHoverTooltip(Description);
         }
 
         public static Button IncognitoButton(bool current, Action<bool> setter)
@@ -68,33 +65,33 @@ public static class HeaderDrawer
 
     public static void Draw(string text, uint textColor, uint frameColor, int leftButtons, params Button[] buttons)
     {
-        using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.Zero)
-            .Push(ImGuiStyleVar.FrameRounding, 0)
-            .Push(ImGuiStyleVar.FrameBorderSize, ImGuiHelpers.GlobalScale);
+        using var style = Im.Style.Push(ImStyleDouble.ItemSpacing, Vector2.Zero)
+            .Push(ImStyleSingle.FrameRounding, 0)
+            .Push(ImStyleSingle.FrameBorderThickness, ImGuiHelpers.GlobalScale);
 
         var leftButtonSize = 0f;
         foreach (var button in buttons.Take(leftButtons).Where(b => b.Visible))
         {
             button.Draw();
-            ImGui.SameLine();
+            Im.Line.Same();
             leftButtonSize += button.Width;
         }
 
         var rightButtonSize = buttons.Length > leftButtons ? buttons.Skip(leftButtons).Where(b => b.Visible).Select(b => b.Width).Sum() : 0f;
-        var midSize = ImGui.GetContentRegionAvail().X - rightButtonSize - ImGuiHelpers.GlobalScale;
+        var midSize = Im.ContentRegion.Available.X - rightButtonSize - ImGuiHelpers.GlobalScale;
 
         style.Pop();
-        style.Push(ImGuiStyleVar.ButtonTextAlign, new Vector2(0.5f + (rightButtonSize - leftButtonSize) / midSize, 0.5f));
+        style.Push(ImStyleDouble.ButtonTextAlign, new Vector2(0.5f + (rightButtonSize - leftButtonSize) / midSize, 0.5f));
         if (textColor != 0)
-            ImGuiUtil.DrawTextButton(text, new Vector2(midSize, ImGui.GetFrameHeight()), frameColor, textColor);
+            UiHelpers.DrawColoredButton(text, new Vector2(midSize, Im.Style.FrameHeight), frameColor, textColor);
         else
-            ImGuiUtil.DrawTextButton(text, new Vector2(midSize, ImGui.GetFrameHeight()), frameColor);
+            UiHelpers.DrawColoredButton(text, new Vector2(midSize, Im.Style.FrameHeight), frameColor);
         style.Pop();
-        style.Push(ImGuiStyleVar.FrameBorderSize, ImGuiHelpers.GlobalScale);
+        style.Push(ImStyleSingle.FrameBorderThickness, ImGuiHelpers.GlobalScale);
 
         foreach (var button in buttons.Skip(leftButtons).Where(b => b.Visible))
         {
-            ImGui.SameLine();
+            Im.Line.Same();
             button.Draw();
         }
     }
