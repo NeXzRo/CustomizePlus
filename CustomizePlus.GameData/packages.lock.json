@@ -4,9 +4,9 @@
     "net10.0-windows7.0": {
       "DotNet.ReproducibleBuilds": {
         "type": "Direct",
-        "requested": "[1.2.39, )",
-        "resolved": "1.2.39",
-        "contentHash": "fcFN01tDTIQqDuTwr1jUQK/geofiwjG5DycJQOnC72i1SsLAk1ELe+apBOuZ11UMQG8YKFZG1FgvjZPbqHyatg=="
+        "requested": "[2.0.2, )",
+        "resolved": "2.0.2",
+        "contentHash": "VaHoEN6YHp0jXucxm67vfuRy8zo9ufiKSuaZ4ZudRi8xmWcEFMKxfCsg2nvYNvdISFTURDu+IHqADGh53+Bamw=="
       },
       "FlatSharp.Compiler": {
         "type": "Transitive",
@@ -20,27 +20,27 @@
       },
       "JetBrains.Annotations": {
         "type": "Transitive",
-        "resolved": "2024.3.0",
-        "contentHash": "ox5pkeLQXjvJdyAB4b2sBYAlqZGLh3PjSnP1bQNVx72ONuTJ9+34/+Rq91Fc0dG29XG9RgZur9+NcP4riihTug=="
+        "resolved": "2025.2.4",
+        "contentHash": "TwbgxAkXxY+vNEhNVx/QXjJ4vqxmepOjsgRvvImQPbHkHMMb4W+ahL3laMsxXKtNT7iMy+E1B3xkqao2hf1n3A=="
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Transitive",
-        "resolved": "9.0.2",
-        "contentHash": "ZffbJrskOZ40JTzcTyKwFHS5eACSWp2bUQBBApIgGV+es8RaTD4OxUG7XxFr3RIPLXtYQ1jQzF2DjKB5fZn7Qg==",
+        "resolved": "10.0.7",
+        "contentHash": "91F/o3emPV/+xY/ip3s2LqDNF14kjttlVtq0BXgg6p4MnCzeSZxnUJm+t6WRrtD3JdGo88/oX+z7OwK4y8PZuw==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.2"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.7"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
-        "resolved": "9.0.2",
-        "contentHash": "MNe7GSTBf3jQx5vYrXF0NZvn6l7hUKF6J54ENfAgCO8y6xjN1XUmKKWG464LP2ye6QqDiA1dkaWEZBYnhoZzjg=="
+        "resolved": "10.0.7",
+        "contentHash": "Z6mfFEaFcwCfSboxJwOLfu7/31npCY9q70WUamHW/vRQhDvBKOT4Vf9YkZj5J6hLvJpb0oDEYfHunQZj0xxvKw=="
       },
       "ottergui": {
         "type": "Project",
         "dependencies": {
-          "JetBrains.Annotations": "[2024.3.0, )",
-          "Microsoft.Extensions.DependencyInjection": "[9.0.2, )"
+          "JetBrains.Annotations": "[2025.2.4, )",
+          "Microsoft.Extensions.DependencyInjection": "[10.0.7, )"
         }
       },
       "penumbra.api": {
@@ -52,8 +52,8 @@
           "FlatSharp.Compiler": "[7.9.0, )",
           "FlatSharp.Runtime": "[7.9.0, )",
           "OtterGui": "[1.0.0, )",
-          "Penumbra.Api": "[5.12.0, )",
-          "Penumbra.String": "[1.0.6, )"
+          "Penumbra.Api": "[5.14.0, )",
+          "Penumbra.String": "[1.0.7, )"
         }
       },
       "penumbra.string": {

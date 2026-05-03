@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0-windows7.0": {
+      "DotNet.ReproducibleBuilds": {
+        "type": "Direct",
+        "requested": "[2.0.2, )",
+        "resolved": "2.0.2",
+        "contentHash": "VaHoEN6YHp0jXucxm67vfuRy8zo9ufiKSuaZ4ZudRi8xmWcEFMKxfCsg2nvYNvdISFTURDu+IHqADGh53+Bamw=="
+      },
+      "JetBrains.Annotations": {
+        "type": "Direct",
+        "requested": "[2025.2.4, )",
+        "resolved": "2025.2.4",
+        "contentHash": "TwbgxAkXxY+vNEhNVx/QXjJ4vqxmepOjsgRvvImQPbHkHMMb4W+ahL3laMsxXKtNT7iMy+E1B3xkqao2hf1n3A=="
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "Direct",
+        "requested": "[10.0.7, )",
+        "resolved": "10.0.7",
+        "contentHash": "91F/o3emPV/+xY/ip3s2LqDNF14kjttlVtq0BXgg6p4MnCzeSZxnUJm+t6WRrtD3JdGo88/oX+z7OwK4y8PZuw==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.7"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.7",
+        "contentHash": "Z6mfFEaFcwCfSboxJwOLfu7/31npCY9q70WUamHW/vRQhDvBKOT4Vf9YkZj5J6hLvJpb0oDEYfHunQZj0xxvKw=="
+      }
+    }
+  }
+}

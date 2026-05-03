@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0-windows7.0": {
+      "DotNet.ReproducibleBuilds": {
+        "type": "Direct",
+        "requested": "[2.0.2, )",
+        "resolved": "2.0.2",
+        "contentHash": "VaHoEN6YHp0jXucxm67vfuRy8zo9ufiKSuaZ4ZudRi8xmWcEFMKxfCsg2nvYNvdISFTURDu+IHqADGh53+Bamw=="
+      },
+      "FlatSharp.Compiler": {
+        "type": "Direct",
+        "requested": "[7.9.0, )",
+        "resolved": "7.9.0",
+        "contentHash": "MU6808xvdbWJ3Ev+5PKalqQuzvVbn1DzzQH8txRDHGFUNDvHjd+ejqpvnYc9BSJ8Qp8VjkkpJD8OzRYilbPp3A=="
+      },
+      "FlatSharp.Runtime": {
+        "type": "Direct",
+        "requested": "[7.9.0, )",
+        "resolved": "7.9.0",
+        "contentHash": "Bm8+WqzEsWNpxqrD5x4x+zQ8dyINlToCreM5FI2oNSfUVc9U9ZB+qztX/jd8rlJb3r0vBSlPwVLpw0xBtPa3Vw=="
+      },
+      "JetBrains.Annotations": {
+        "type": "Transitive",
+        "resolved": "2025.2.4",
+        "contentHash": "TwbgxAkXxY+vNEhNVx/QXjJ4vqxmepOjsgRvvImQPbHkHMMb4W+ahL3laMsxXKtNT7iMy+E1B3xkqao2hf1n3A=="
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "Transitive",
+        "resolved": "10.0.7",
+        "contentHash": "91F/o3emPV/+xY/ip3s2LqDNF14kjttlVtq0BXgg6p4MnCzeSZxnUJm+t6WRrtD3JdGo88/oX+z7OwK4y8PZuw==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.7"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.7",
+        "contentHash": "Z6mfFEaFcwCfSboxJwOLfu7/31npCY9q70WUamHW/vRQhDvBKOT4Vf9YkZj5J6hLvJpb0oDEYfHunQZj0xxvKw=="
+      },
+      "ottergui": {
+        "type": "Project",
+        "dependencies": {
+          "JetBrains.Annotations": "[2025.2.4, )",
+          "Microsoft.Extensions.DependencyInjection": "[10.0.7, )"
+        }
+      },
+      "penumbra.api": {
+        "type": "Project"
+      },
+      "penumbra.string": {
+        "type": "Project"
+      }
+    }
+  }
+}

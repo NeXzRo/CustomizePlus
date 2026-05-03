@@ -1,0 +1,17 @@
+﻿<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+
+	<PropertyGroup>
+		<NoWarn>CS1591;CA1401;CS0649;CS8632;CS0414;CS0169;IDE1006;CS0419</NoWarn>
+		<Optimize>True</Optimize>
+		<IsTrimmable>false</IsTrimmable>
+	</PropertyGroup>
+  
+  <PropertyGroup>
+    <Use_DalamudPackager>false</Use_DalamudPackager>
+    <Use_Dalamud_ImGui>true</Use_Dalamud_ImGui>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Update="DotNet.ReproducibleBuilds" Version="2.0.2" />
+  </ItemGroup>
+</Project>

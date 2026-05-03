@@ -1,0 +1,35 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+    <PropertyGroup>
+        <AssemblyTitle>Penumbra.GameData</AssemblyTitle>
+        <Product>Penumbra</Product>
+        <Copyright>Copyright © 2025</Copyright>
+        <OutputPath>bin\$(Configuration)\</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Use_DalamudPackager>false</Use_DalamudPackager>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FlatSharp.Runtime" Version="7.9" />
+        <PackageReference Include="FlatSharp.Compiler" Version="7.9" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Penumbra.Api\Penumbra.Api.csproj" />
+        <ProjectReference Include="..\Penumbra.String\Penumbra.String.csproj" />
+        <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <FlatSharpSchema Include="Schema/epbd_schema.fbs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="epbd_schema.fbs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="DotNet.ReproducibleBuilds" Version="2.0.2" />
+    </ItemGroup>
+</Project>

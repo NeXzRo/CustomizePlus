@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<Project Sdk="Dalamud.NET.Sdk/14.0.2">
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
     <AssemblyTitle>CustomizePlus</AssemblyTitle>
     <Version>2.0.0.0</Version>
@@ -23,11 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitInfo" Version="3.3.5">
+    <PackageReference Include="GitInfo" Version="3.6.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -41,6 +41,11 @@
     <None Include="CustomizePlus.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="DalamudPackager" Version="15.0.0" />
+    <PackageReference Update="DotNet.ReproducibleBuilds" Version="2.0.2" />
   </ItemGroup>
 
   <!--<PropertyGroup Condition="'$(Configuration)'=='Debug'">
