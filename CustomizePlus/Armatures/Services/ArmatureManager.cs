@@ -429,7 +429,7 @@ public unsafe sealed class ArmatureManager : IDisposable
             {
                 foreach (var profile in _profileManager.GetProfilesUsingTemplate(template))
                 {
-                    _logger.Debug($"ArmatureManager.OnTemplateChange New/Deleted bone or character changed: {type}, template: {template.Name.Text.Incognify()}, profile: {profile.Name.Text.Incognify()}->{profile.Enabled}->{profile.Armatures.Count} armatures");
+                    _logger.Debug($"ArmatureManager.OnTemplateChange New/Deleted bone or character changed: {type}, template: {template.Name.Incognify()}, profile: {profile.Name.Incognify()}->{profile.Enabled}->{profile.Armatures.Count} armatures");
                     if (!profile.Enabled || profile.Armatures.Count == 0)
                         continue;
 
@@ -457,7 +457,7 @@ public unsafe sealed class ArmatureManager : IDisposable
             foreach (var armature in profile.Armatures)
                 armature.IsPendingProfileRebind = true;
 
-            _logger.Debug($"ArmatureManager.OnTemplateChange Editor profile character name changed, armature rebind scheduled: {type}, profile: {profile.Name.Text.Incognify()}->{profile.Enabled}, new name: {character.Incognito(null)}");
+            _logger.Debug($"ArmatureManager.OnTemplateChange Editor profile character name changed, armature rebind scheduled: {type}, profile: {profile.Name.Incognify()}->{profile.Enabled}, new name: {character.Incognito(null)}");
 
             return;
         }
@@ -513,7 +513,7 @@ public unsafe sealed class ArmatureManager : IDisposable
             foreach (var armature in oldProfile.Armatures)
                 armature.IsPendingProfileRebind = true;
 
-            _logger.Debug($"ArmatureManager.OnProfileChange Profile no longer default/default for local player, armatures rebind scheduled: {type}, old profile: {oldProfile.Name.Text.Incognify()}->{oldProfile.Enabled}");
+            _logger.Debug($"ArmatureManager.OnProfileChange Profile no longer default/default for local player, armatures rebind scheduled: {type}, old profile: {oldProfile.Name.Incognify()}->{oldProfile.Enabled}");
 
             return;
         }
@@ -597,7 +597,7 @@ public unsafe sealed class ArmatureManager : IDisposable
                 armature.IsPendingProfileRebind = true;
             }
 
-            _logger.Debug($"ArmatureManager.OnProfileChange TemporaryProfileAdded, calling rebind for existing armature: {type}, data payload: {arg3?.ToString()}, profile: {profile.Name.Text.Incognify()}->{profile.Enabled}");
+            _logger.Debug($"ArmatureManager.OnProfileChange TemporaryProfileAdded, calling rebind for existing armature: {type}, data payload: {arg3?.ToString()}, profile: {profile.Name.Incognify()}->{profile.Enabled}");
 
             return;
         }
@@ -615,7 +615,7 @@ public unsafe sealed class ArmatureManager : IDisposable
             foreach (var armature in GetArmaturesForCharacter(actorIdentifier))
                 armature.IsPendingProfileRebind = true;
 
-            _logger.Debug($"ArmatureManager.OnProfileChange AC/RC, armature rebind scheduled: {type}, data payload: {arg3?.ToString()?.Incognify()}, profile: {profile.Name.Text.Incognify()}->{profile.Enabled}");
+            _logger.Debug($"ArmatureManager.OnProfileChange AC/RC, armature rebind scheduled: {type}, data payload: {arg3?.ToString()?.Incognify()}, profile: {profile.Name.Incognify()}->{profile.Enabled}");
             
             return;
         }
@@ -634,7 +634,7 @@ public unsafe sealed class ArmatureManager : IDisposable
                 armature.IsPendingProfileRebind = true;
             }
 
-            _logger.Debug($"ArmatureManager.OnProfileChange DEL/TPD, armature rebind scheduled: {type}, data payload: {arg3?.ToString()?.Incognify()}, profile: {profile.Name.Text.Incognify()}->{profile.Enabled}");
+            _logger.Debug($"ArmatureManager.OnProfileChange DEL/TPD, armature rebind scheduled: {type}, data payload: {arg3?.ToString()?.Incognify()}, profile: {profile.Name.Incognify()}->{profile.Enabled}");
 
             return;
         }

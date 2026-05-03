@@ -3,20 +3,18 @@ using CustomizePlus.Configuration.Services;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Profiles;
 
-public class ProfilesTab : TwoPanelLayout
+public class ProfilesTab : TwoPanelLayout, ITab<MainTabType>
 {
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
-    private readonly ProfileFileSystemSelector _selector;
+    //private readonly ProfileFileSystemSelector _selector;
 
-    public ProfilesTab(ProfileFileSystemSelector selector, ProfilePanel panel, PluginConfiguration configuration, ConfigurationService configurationService)
+    public ProfilesTab(/*ProfileFileSystemSelector selector, */ProfilePanel panel, PluginConfiguration configuration)
     {
         _configuration = configuration;
-        _configurationService = configurationService;
-        _selector = selector;
+       /* _selector = selector;
         LeftHeader = selector.Header;
         LeftFooter = selector.Footer;
-        LeftPanel = selector;
+        LeftPanel = selector;*/
         RightHeader = panel;
         RightFooter = EmptyHeaderFooter.Instance;
         RightPanel = panel;
@@ -25,7 +23,10 @@ public class ProfilesTab : TwoPanelLayout
     public override ReadOnlySpan<byte> Label
         => "ProfilesTab"u8;
 
-    public void Draw()
+    public MainTabType Identifier
+        => MainTabType.Profiles;
+
+    public void DrawContent()
         => Draw(new TwoPanelWidth(_configuration.UISettings.CurrentProfileSelectorWidth, ScalingMode.Absolute));
 
     protected override void SetWidth(float width, ScalingMode mode)
@@ -35,11 +36,11 @@ public class ProfilesTab : TwoPanelLayout
             return;
 
         _configuration.UISettings.CurrentProfileSelectorWidth = adaptedSize;
-        _configurationService.Save(PluginConfigurationChange.Layout);
+        _configuration.Save();
     }
 
-    protected override void DrawPopups()
-        => _selector.DrawSelectorPopups();
+   /* protected override void DrawPopups()
+        => _selector.DrawSelectorPopups();*/
 
     protected override float MinimumWidth
         => Im.ContentRegion.Available.X * _configuration.UISettings.ProfileSelectorMinimumScale;

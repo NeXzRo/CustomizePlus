@@ -63,13 +63,13 @@ public static class CtrlHelper
         return value;
     }
 
-
     public static void AddHoverText(string text)
     {
         Im.Tooltip.OnHover(text);
     }
 
     public enum TextAlignment { Left, Center, Right };
+
     public static void StaticLabel(string? text, TextAlignment align = TextAlignment.Left, string tooltip = "")
     {
         if (text != null)

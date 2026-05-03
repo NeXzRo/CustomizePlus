@@ -15,7 +15,7 @@ public sealed class Template : ISavable, IFileSystemValue<Template>
 {
     public const int Version = Constants.ConfigurationVersion;
 
-    public LowerString Name { get; internal set; } = "Template";
+    public string Name { get; internal set; } = "Template";
 
     public DateTimeOffset CreationDate { get; internal set; } = DateTime.UtcNow;
     public DateTimeOffset ModifiedDate { get; internal set; } = DateTime.UtcNow;
@@ -30,12 +30,14 @@ public sealed class Template : ISavable, IFileSystemValue<Template>
     public string Identifier
         => UniqueId.ToString();
 
+    public int Index { get; internal set; }
+
     public DataPath Path { get; } = new();
 
     public IFileSystemData<Template>? Node { get; set; }
 
     string IFileSystemValue.DisplayName
-        => Name.Text;
+        => Name;
 
     public Dictionary<string, BoneTransform> Bones { get; init; } = new();
 
@@ -82,7 +84,7 @@ public sealed class Template : ISavable, IFileSystemValue<Template>
 
     public override string ToString()
     {
-        return $"Template '{Name.Text.Incognify()}' with {Bones.Count} bone edits [{UniqueId}]";
+        return $"Template '{Name.Incognify()}' with {Bones.Count} bone edits [{UniqueId}]";
     }
 
     #region Serialization
@@ -95,7 +97,7 @@ public sealed class Template : ISavable, IFileSystemValue<Template>
             ["UniqueId"] = UniqueId,
             ["CreationDate"] = CreationDate,
             ["ModifiedDate"] = ModifiedDate,
-            ["Name"] = Name.Text,
+            ["Name"] = Name,
             ["Bones"] = JObject.FromObject(Bones),
             ["IsWriteProtected"] = IsWriteProtected
         };
@@ -125,7 +127,7 @@ public sealed class Template : ISavable, IFileSystemValue<Template>
         {
             CreationDate = creationDate,
             UniqueId = obj["UniqueId"]?.ToObject<Guid>() ?? throw new ArgumentNullException("UniqueId"),
-            Name = new LowerString(obj["Name"]?.ToObject<string>()?.Trim() ?? throw new ArgumentNullException("Name")),
+            Name = obj["Name"]?.ToObject<string>() ?? throw new ArgumentNullException("Name"),
             ModifiedDate = obj["ModifiedDate"]?.ToObject<DateTimeOffset>() ?? creationDate,
             Bones = obj["Bones"]?.ToObject<Dictionary<string, BoneTransform>>() ?? throw new ArgumentNullException("Bones"),
             IsWriteProtected = obj["IsWriteProtected"]?.ToObject<bool>() ?? false

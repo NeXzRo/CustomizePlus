@@ -24,7 +24,6 @@ public class TemplateEditorManager : IDisposable
     private readonly TemplateManager _templateManager;
     private readonly IClientState _clientState;
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
 
     /// <summary>
     /// Reference to the original template which is currently being edited, should not be edited!
@@ -86,8 +85,7 @@ public class TemplateEditorManager : IDisposable
         TemplateManager templateManager,
         GameObjectService gameObjectService,
         IClientState clientState,
-        PluginConfiguration configuration,
-        ConfigurationService configurationService)
+        PluginConfiguration configuration)
     {
         _event = @event;
         _logger = logger;
@@ -95,7 +93,6 @@ public class TemplateEditorManager : IDisposable
         _gameObjectService = gameObjectService;
         _clientState = clientState;
         _configuration = configuration;
-        _configurationService = configurationService;
 
         _clientState.Login += OnLogin;
 
@@ -217,7 +214,7 @@ public class TemplateEditorManager : IDisposable
         EditorProfile.Characters.Add(character);
 
         _configuration.EditorConfiguration.PreviewCharacter = character;
-        _configurationService.Save(PluginConfigurationChange.Editor);
+        _configuration.Save();
 
         _event.Invoke(new TemplateChanged.Arguments(TemplateChanged.Type.EditorCharacterChanged, CurrentlyEditedTemplate, (character, EditorProfile)));
 

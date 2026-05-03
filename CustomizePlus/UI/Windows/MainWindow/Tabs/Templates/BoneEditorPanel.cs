@@ -26,10 +26,10 @@ public class BoneEditorPanel
     private static readonly Vector4 AxisYEditedCellColor = new(0.35f, 0.72f, 0.35f, 0.16f);
     private static readonly Vector4 AxisZEditedCellColor = new(0.32f, 0.52f, 0.95f, 0.18f);
 
-    private readonly TemplateFileSystemSelector _templateFileSystemSelector;
+    //private readonly TemplateFileSystemSelector _templateFileSystemSelector;
+    private readonly TemplateFileSystem _fileSystem;
     private readonly TemplateEditorManager _editorManager;
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
     private readonly GameObjectService _gameObjectService;
     private readonly ActorAssignmentUi _actorAssignmentUi;
     private readonly PopupSystem _popupSystem;
@@ -71,19 +71,19 @@ public class BoneEditorPanel
     public bool IsCharacterFound => _editorManager.IsCharacterFound;
 
     public BoneEditorPanel(
-        TemplateFileSystemSelector templateFileSystemSelector,
+       // TemplateFileSystemSelector templateFileSystemSelector,
+        TemplateFileSystem fileSystem,
         TemplateEditorManager editorManager,
         PluginConfiguration configuration,
-        ConfigurationService configurationService,
         GameObjectService gameObjectService,
         ActorAssignmentUi actorAssignmentUi,
         PopupSystem popupSystem,
         Logger logger)
     {
-        _templateFileSystemSelector = templateFileSystemSelector;
+     //   _templateFileSystemSelector = templateFileSystemSelector;
+        _fileSystem = fileSystem;
         _editorManager = editorManager;
         _configuration = configuration;
-        _configurationService = configurationService;
         _gameObjectService = gameObjectService;
         _actorAssignmentUi = actorAssignmentUi;
         _popupSystem = popupSystem;
@@ -134,7 +134,7 @@ public class BoneEditorPanel
         {
             string characterText = null!;
 
-            if (_templateFileSystemSelector.IncognitoMode)
+            if (_configuration.UISettings.IncognitoMode)
                 characterText = "Previewing on: incognito active";
             else
                 characterText = _editorManager.Character.IsValid ? $"Previewing on: {(_editorManager.Character.Type == Penumbra.GameData.Enums.IdentifierType.Owned ?
@@ -154,7 +154,7 @@ public class BoneEditorPanel
 
                 using (var disabled = Im.Disabled(!IsEditorActive || IsEditorPaused))
                 {
-                    if (!_templateFileSystemSelector.IncognitoMode)
+                    if (!_configuration.UISettings.IncognitoMode)
                     {
                         _actorAssignmentUi.DrawWorldCombo(width.X / 2);
                         Im.Line.Same();
@@ -258,7 +258,7 @@ public class BoneEditorPanel
                 if (modeChanged)
                 {
                     _configuration.EditorConfiguration.EditorMode = _editingAttribute;
-                    _configurationService.Save(PluginConfigurationChange.Editor);
+                    _configuration.Save();
                 }
 
                 using (var disabled = Im.Disabled(!_isUnlocked))
@@ -267,7 +267,7 @@ public class BoneEditorPanel
                     if (CtrlHelper.Checkbox("Show Live Bones", ref _isShowLiveBones))
                     {
                         _configuration.EditorConfiguration.ShowLiveBones = _isShowLiveBones;
-                        _configurationService.Save(PluginConfigurationChange.Editor);
+                        _configuration.Save();
                     }
                     CtrlHelper.AddHoverText($"If selected, present for editing all bones found in the game data,\nelse show only bones for which the profile already contains edits.");
 
@@ -277,7 +277,7 @@ public class BoneEditorPanel
                         if (CtrlHelper.Checkbox("Mirror Mode", ref _isMirrorModeEnabled))
                         {
                             _configuration.EditorConfiguration.BoneMirroringEnabled = _isMirrorModeEnabled;
-                            _configurationService.Save(PluginConfigurationChange.Editor);
+                            _configuration.Save();
                         }
                         CtrlHelper.AddHoverText($"Bone changes will be reflected from left to right and vice versa");
                     }
@@ -288,7 +288,7 @@ public class BoneEditorPanel
                 if (Im.Slider("##Precision"u8, ref _precision, $"{_precision} Place{(_precision == 1 ? "" : "s")}", 0, 6))
                 {
                     _configuration.EditorConfiguration.EditorValuesPrecision = _precision;
-                    _configurationService.Save(PluginConfigurationChange.Editor);
+                    _configuration.Save();
                 }
                 CtrlHelper.AddHoverText("Level of precision to display while editing values");
             }
@@ -331,7 +331,7 @@ public class BoneEditorPanel
                         : _editorManager.EditorProfile.Armatures[0].BoneTemplateBinding.Where(x => x.Value.Bones.ContainsKey(x.Key))
                             .Select(x => new BoneEditRow(x.Key, x.Value.Bones[x.Key])); //todo: this is awful
                 else
-                    relevantModelBones = _templateFileSystemSelector.Selected!.Bones.Select(x => new BoneEditRow(x.Key, x.Value));
+                    relevantModelBones = ((Template)_fileSystem.Selection.Selection!.Value).Bones.Select(x => new BoneEditRow(x.Key, x.Value));
 
                 if (!string.IsNullOrEmpty(_boneSearch))
                 {
@@ -676,7 +676,7 @@ public class BoneEditorPanel
                 _favoriteBones.Add(bone.BoneCodeName);
 
             _configuration.EditorConfiguration.FavoriteBones = _favoriteBones.ToHashSet();
-            _configurationService.Save(PluginConfigurationChange.Editor);
+            _configuration.Save();
         }
 
         return isFavorite;

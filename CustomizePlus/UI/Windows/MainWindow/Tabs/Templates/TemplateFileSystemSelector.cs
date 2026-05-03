@@ -15,14 +15,13 @@ using Dalamud.Interface;
 using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Interface.ImGuiNotification;
 using Newtonsoft.Json;
-using static CustomizePlus.UI.Windows.MainWindow.Tabs.Templates.TemplateFileSystemSelector;
+//using static CustomizePlus.UI.Windows.MainWindow.Tabs.Templates.TemplateFileSystemSelector;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Templates;
-
+/*
 public class TemplateFileSystemSelector : CPlusFileSystemSelector<Template, TemplateState>
 {
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
     private readonly TemplateEditorManager _editorManager;
     private readonly TemplateManager _templateManager;
     private readonly TemplateChanged _templateChangedEvent;
@@ -45,7 +44,7 @@ public class TemplateFileSystemSelector : CPlusFileSystemSelector<Template, Temp
         set
         {
             _configuration.UISettings.IncognitoMode = value;
-            _configurationService.Save(PluginConfigurationChange.Interface);
+            _configuration.Save();
         }
     }
 
@@ -58,7 +57,6 @@ public class TemplateFileSystemSelector : CPlusFileSystemSelector<Template, Temp
         TemplateFileSystem fileSystem,
         Logger logger,
         PluginConfiguration configuration,
-        ConfigurationService configurationService,
         TemplateEditorManager editorManager,
         TemplateManager templateManager,
         TemplateChanged templateChangedEvent,
@@ -70,7 +68,6 @@ public class TemplateFileSystemSelector : CPlusFileSystemSelector<Template, Temp
         : base(messageService, fileSystem, nameof(TemplateFileSystemSelector))
     {
         _configuration = configuration;
-        _configurationService = configurationService;
         _editorManager = editorManager;
         _templateManager = templateManager;
         _templateChangedEvent = templateChangedEvent;
@@ -101,10 +98,10 @@ public class TemplateFileSystemSelector : CPlusFileSystemSelector<Template, Temp
     }
 
     protected override uint ExpandedFolderColorValue
-        => ColorId.FolderExpanded.Value();
+        => 0;// ColorId.FolderExpanded.Value();
 
     protected override uint CollapsedFolderColorValue
-        => ColorId.FolderCollapsed.Value();
+        => 0;// ColorId.FolderCollapsed.Value();
 
     protected override bool FoldersDefaultOpen
         => _configuration.UISettings.FoldersDefaultOpen;
@@ -112,7 +109,7 @@ public class TemplateFileSystemSelector : CPlusFileSystemSelector<Template, Temp
     protected override void DrawLeafName(IFileSystemData<Template> node, in TemplateState state, bool selected)
     {
         var flag = selected ? TreeNodeFlags.Selected | LeafFlags : LeafFlags;
-        var name = IncognitoMode ? node.Value.Incognito : node.Value.Name.Text;
+        var name = IncognitoMode ? node.Value.Incognito : node.Value.Name;
         using var color = ImGuiColor.Text.Push(state.Color.Value());
         DrawLeafTreeNode(node, flag, name);
     }
@@ -318,12 +315,12 @@ public class TemplateFileSystemSelector : CPlusFileSystemSelector<Template, Temp
                 _logger.Debug(isSuccess + " NO valid file has been selected. " + path);
             }
         }, 1, null, true);
-
+*/
         /*MessageDialog.Show(
             "Due to technical limitations, Customize+ is only able to import scale values from *.pose files.\nPosition and rotation information will be ignored.",
             new Vector2(570, 100), ImportAction, "ana_import_pos_rot_warning");*/
         //todo: message dialog?
-    }
+    /*}
 
     private string CloneTooltip()
         => Selected is null
@@ -431,3 +428,4 @@ public class TemplateFileSystemSelector : CPlusFileSystemSelector<Template, Temp
 
     #endregion
 }
+    */

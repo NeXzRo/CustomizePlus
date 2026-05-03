@@ -68,6 +68,8 @@ public class TemplateManager : IDisposable
 
                 PruneUneditedBones(template);
 
+                template.Index = _templates.Count;
+
                 _templates.Add(template);
             }
             catch (Exception ex)
@@ -95,7 +97,8 @@ public class TemplateManager : IDisposable
             ModifiedDate = DateTimeOffset.UtcNow,
             UniqueId = CreateNewGuid(),
             Name = actualName,
-            Bones = bones != null && bones.Count > 0 ? new Dictionary<string, BoneTransform>(bones) : new()
+            Bones = bones != null && bones.Count > 0 ? new Dictionary<string, BoneTransform>(bones) : new(),
+            Index = _templates.Count
         };
 
         if (template.Bones.Count > 0)
@@ -128,7 +131,8 @@ public class TemplateManager : IDisposable
             CreationDate = DateTimeOffset.UtcNow,
             ModifiedDate = DateTimeOffset.UtcNow,
             UniqueId = CreateNewGuid(),
-            Name = actualName
+            Name = actualName,
+            Index = _templates.Count
         };
 
         _templates.Add(template);
@@ -148,7 +152,7 @@ public class TemplateManager : IDisposable
     {
         newName = newName.Trim();
 
-        var oldName = template.Name.Text;
+        var oldName = template.Name;
         if (oldName == newName)
             return;
 
@@ -166,7 +170,13 @@ public class TemplateManager : IDisposable
     /// <param name="template"></param>
     public void Delete(Template template)
     {
-        _templates.Remove(template);
+        foreach(var tpl in _templates.Skip(template.Index + 1))
+        {
+            --tpl.Index;
+        }
+
+        _templates.RemoveAt(template.Index);
+
         _saveService.ImmediateDelete(template);
         _event.Invoke(new TemplateChanged.Arguments(TemplateChanged.Type.Deleted, template, null));
     }

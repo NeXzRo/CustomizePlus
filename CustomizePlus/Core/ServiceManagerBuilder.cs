@@ -2,6 +2,7 @@
 using CustomizePlus.Api;
 using CustomizePlus.Armatures.Events;
 using CustomizePlus.Armatures.Services;
+using CustomizePlus.Configuration.Data;
 using CustomizePlus.Configuration.Services;
 using CustomizePlus.Core.Events;
 using CustomizePlus.Core.Services;
@@ -87,13 +88,13 @@ public static class ServiceManagerBuilder
             .AddSingleton<SettingsTab>()
             // template
             .AddSingleton<TemplatesTab>()
-            .AddSingleton<TemplateFileSystemSelector>()
+           // .AddSingleton<TemplateFileSystemSelector>()
             .AddSingleton<TemplatePanel>()
             .AddSingleton<BoneEditorPanel>()
             // /template
             // profile
             .AddSingleton<ProfilesTab>()
-            .AddSingleton<ProfileFileSystemSelector>()
+            //.AddSingleton<ProfileFileSystemSelector>()
             .AddSingleton<ProfilePanel>()
             // /profile
             // messages
@@ -177,8 +178,7 @@ public static class ServiceManagerBuilder
     private static ServiceManager AddConfigServices(this ServiceManager services)
     {
         services
-            .AddSingleton<ConfigurationService>()
-            .AddSingleton(provider => provider.GetRequiredService<ConfigurationService>().Current)
+            .AddSingleton<PluginConfiguration>()
             .AddSingleton<ConfigurationMigrator>();
 
         return services;
@@ -219,7 +219,6 @@ public static class ServiceManagerBuilder
         services
             .AddSingleton<ActorManager>()
             .AddSingleton<CutsceneService>()
-            .AddSingleton<GameEventManager>()
             .AddSingleton(p => new CutsceneResolver(idx => (short)p.GetRequiredService<CutsceneService>().GetParentIndex(idx)))
             .AddSingleton<ActorObjectManager>();
 

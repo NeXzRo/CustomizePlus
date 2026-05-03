@@ -43,7 +43,7 @@ public partial class CustomizePlusIpc
             .Where(x => x.ProfileType == ProfileType.Normal)
             .Select(x =>
             {
-                var path = x.Node?.FullPath ?? x.Name.Text;
+                var path = x.Node?.FullPath ?? x.Name;
                 var charactersList = new List<IPCCharacterDataTuple>(x.Characters.Count);
 
                 foreach (var character in x.Characters)
@@ -57,7 +57,7 @@ public partial class CustomizePlusIpc
                     charactersList.Add(tuple);
                 }
 
-                return (x.UniqueId, x.Name.Text, path, charactersList, x.Priority, x.Enabled);
+                return (x.UniqueId, x.Name, path, charactersList, x.Priority, x.Enabled);
             })
             .ToList();
     }

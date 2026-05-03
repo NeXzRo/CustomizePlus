@@ -2,38 +2,31 @@ using Dalamud.Hooking;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using Luna;
 using Penumbra.GameData;
+using Penumbra.GameData.Interop;
 
 namespace CustomizePlus.GameData.Hooks.Objects;
+
 public sealed unsafe class CharacterDestructor : EventBase<CharacterDestructor.Arguments, CharacterDestructor.Priority>, IHookService
 {
-    public readonly struct Arguments(Character* character)
-    {
-        public readonly Character* Character = character;
-    }
-
     public enum Priority
     {
-        /// <seealso cref="PathResolving.CutsceneService"/>
         CutsceneService = 0,
-
-        /// <seealso cref="PathResolving.IdentifiedCollectionCache"/>
-        IdentifiedCollectionCache = 0,
     }
 
-    public CharacterDestructor(HookManager hooks, LunaLogger log)
+    public CharacterDestructor(LunaLogger log, HookManager hooks)
         : base("Character Destructor", log)
         => _task = hooks.CreateHook<Delegate>(Name, Sigs.CharacterDestructor, Detour, true);
 
-    private readonly Task<Hook<Delegate>> _task;
+    private readonly Task<Hook<Delegate>?> _task;
 
     public nint Address
-        => _task.Result.Address;
+        => _task.Result?.Address ?? nint.Zero;
 
     public void Enable()
-        => _task.Result.Enable();
+        => _task.Result?.Enable();
 
     public void Disable()
-        => _task.Result.Disable();
+        => _task.Result?.Disable();
 
     public Task Awaiter
         => _task;
@@ -45,8 +38,12 @@ public sealed unsafe class CharacterDestructor : EventBase<CharacterDestructor.A
 
     private void Detour(Character* character)
     {
-        //Penumbra.Log.Verbose($"[{Name}] Triggered with 0x{(nint)character:X}.");
+        MainLogger.GlobalPluginLogger.Verbose($"[{Name}] Triggered with 0x{(nint)character:X}.");
         Invoke(new Arguments(character));
-        _task.Result.Original(character);
+        _task.Result!.Original(character);
     }
+
+    /// <summary> The arguments for a character destructor event. </summary>
+    /// <param name="Character"> The game object that is being destroyed. </param>
+    public readonly record struct Arguments(Actor Character);
 }

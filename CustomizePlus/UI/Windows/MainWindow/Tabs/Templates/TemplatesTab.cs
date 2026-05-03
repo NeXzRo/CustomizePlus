@@ -1,28 +1,60 @@
 using CustomizePlus.Configuration.Data;
 using CustomizePlus.Configuration.Services;
+using Dalamud.Interface.ImGuiNotification;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
+using static FFXIVClientStructs.FFXIV.Client.Game.Character.ActionEffectHandler;
+using static FFXIVClientStructs.FFXIV.Client.UI.AddonItemDetailCompare;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Templates;
 
-public class TemplatesTab : TwoPanelLayout
+public class TemplatesTab : TwoPanelLayout, ITab<MainTabType>
 {
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
-    private readonly TemplateFileSystemSelector _selector;
 
-    public TemplatesTab(TemplateFileSystemSelector selector, TemplatePanel panel, PluginConfiguration configuration, ConfigurationService configurationService)
+    public TemplatesTab(TemplateFileSystemDrawer drawer, TemplatePanel panel, TemplateHeader header, PluginConfiguration configuration)
     {
         _configuration = configuration;
-        _configurationService = configurationService;
-        _selector = selector;
-        LeftHeader = selector.Header;
-        LeftFooter = selector.Footer;
-        LeftPanel = selector;
-        RightHeader = panel;
+        LeftHeader = drawer.Header;
+        LeftFooter = drawer.Footer;
+        LeftPanel = drawer;
+
+        RightHeader = header;
         RightFooter = EmptyHeaderFooter.Instance;
         RightPanel = panel;
     }
 
     public override ReadOnlySpan<byte> Label
+        => "Templates"u8;
+
+    public MainTabType Identifier
+        => MainTabType.Templates;
+
+    /*    protected override void DrawLeftGroup(in TwoPanelWidth width)
+        {
+            base.DrawLeftGroup(in width);
+            if (_importService.CreateCharaTarget(out var designBase, out var name))
+            {
+                var newDesign = _manager.CreateClone(designBase, name, true);
+                Glamourer.Messager.NotificationMessage($"Imported Anamnesis .chara file {name} as new design {newDesign.Name}",
+                    NotificationType.Success, false);
+            }
+            _importService.CreateCharaSource();
+        }*/
+
+    protected override float MinimumWidth
+        => LeftFooter.MinimumWidth;
+
+    protected override float MaximumWidth
+        => Im.Window.Width - 500 * Im.Style.GlobalScale;
+
+    protected override void SetWidth(float width, ScalingMode mode)
+        => _configuration.LunaUiConfiguration.TemplatesTabScale = new TwoPanelWidth(width, mode);
+
+
+    public void DrawContent()
+        => Draw(_configuration.LunaUiConfiguration.TemplatesTabScale);
+
+    /*    public override ReadOnlySpan<byte> Label
         => "TemplatesTab"u8;
 
     public void Draw()
@@ -35,7 +67,7 @@ public class TemplatesTab : TwoPanelLayout
             return;
 
         _configuration.UISettings.CurrentTemplateSelectorWidth = adaptedSize;
-        _configurationService.Save(PluginConfigurationChange.Layout);
+        _configuration.Save();
     }
 
     protected override void DrawPopups()
@@ -47,5 +79,5 @@ public class TemplatesTab : TwoPanelLayout
     protected override float MaximumWidth
         => MathF.Max(MinimumWidth, MathF.Min(
             Im.ContentRegion.Available.X * _configuration.UISettings.TemplateSelectorMaximumScale,
-            Im.ContentRegion.Available.X - 470 * Im.Style.GlobalScale));
+            Im.ContentRegion.Available.X - 470 * Im.Style.GlobalScale));*/
 }

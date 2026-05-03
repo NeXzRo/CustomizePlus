@@ -12,12 +12,11 @@ public partial class PopupSystem : LunaWindow
 
     private readonly Logger _logger;
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
 
     private readonly Dictionary<string, PopupData> _popups = new();
     private readonly List<PopupData> _displayedPopups = new();
 
-    public PopupSystem(Logger logger, PluginConfiguration configuration, ConfigurationService configurationService)
+    public PopupSystem(Logger logger, PluginConfiguration configuration)
         : base("Customize+ Popups###CPlusPopupSystem",
             WindowFlags.NoCollapse
           | WindowFlags.NoDecoration
@@ -33,7 +32,6 @@ public partial class PopupSystem : LunaWindow
     {
         _logger = logger;
         _configuration = configuration;
-        _configurationService = configurationService;
 
         IsOpen = true;
         RespectCloseHotkey = false;
@@ -147,7 +145,7 @@ public partial class PopupSystem : LunaWindow
                 if (popup.DisplayOnce)
                 {
                     _configuration.UISettings.ViewedMessageWindows.Add(popup.Name);
-                    _configurationService.Save(PluginConfigurationChange.Popup);
+                    _configuration.Save();
                 }
             }
         }

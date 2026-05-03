@@ -18,18 +18,18 @@ public class ConfigurationMigrator
         _logger = logger;
     }
 
-    public bool Migrate(PluginConfiguration config)
+    public void Migrate(PluginConfiguration config)
     {
         var configVersion = config.Version;
 
         if (configVersion >= Constants.ConfigurationVersion)
-            return false;
+            return;
 
         //We no longer support migrations of any versions < 4
         if (configVersion < 4)
         {
             _messageService.NotificationMessage("Unsupported version of Customize+ configuration data detected. Check FAQ over at https://github.com/Aether-Tools/CustomizePlus for information.", NotificationType.Error);
-            return false;
+            return;
         }
 
         // V4 to V5: Added ChildScaling field to BoneTransform
@@ -39,6 +39,6 @@ public class ConfigurationMigrator
         }
 
         config.Version = Constants.ConfigurationVersion;
-        return true;
+        return;
     }
 }

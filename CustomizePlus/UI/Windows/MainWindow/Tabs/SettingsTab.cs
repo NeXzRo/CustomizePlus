@@ -12,14 +12,13 @@ using Dalamud.Utility;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs;
 
-public class SettingsTab
+public class SettingsTab : ITab<MainTabType>
 {
     private const uint DiscordColor = 0xFFDA8972;
     private const uint DonateColor = 0xFF5B5EFF;
 
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
     private readonly ArmatureManager _armatureManager;
     private readonly HookingService _hookingService;
     private readonly TemplateEditorManager _templateEditorManager;
@@ -31,7 +30,6 @@ public class SettingsTab
     public SettingsTab(
         IDalamudPluginInterface pluginInterface,
         PluginConfiguration configuration,
-        ConfigurationService configurationService,
         ArmatureManager armatureManager,
         HookingService hookingService,
         TemplateEditorManager templateEditorManager,
@@ -42,7 +40,6 @@ public class SettingsTab
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
-        _configurationService = configurationService;
         _armatureManager = armatureManager;
         _hookingService = hookingService;
         _templateEditorManager = templateEditorManager;
@@ -52,7 +49,13 @@ public class SettingsTab
         _pcpService = pcpService;
     }
 
-    public void Draw()
+    public ReadOnlySpan<byte> Label
+        => "Settings"u8;
+
+    public MainTabType Identifier
+        => MainTabType.Settings;
+
+    public void DrawContent()
     {
         UiHelpers.SetupCommonSizes();
         using var child = Im.Child.Begin("MainWindowChild"u8);
@@ -96,7 +99,7 @@ public class SettingsTab
                     "Globally enables or disables all plugin functionality.", ref isChecked))
             {
                 _configuration.PluginEnabled = isChecked;
-                _configurationService.Save(PluginConfigurationChange.PluginState);
+                _configuration.Save();
                 _hookingService.ReloadHooks();
             }
         }
@@ -126,7 +129,7 @@ public class SettingsTab
                 "Apply profile for your character in your main character window, if it is set.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInCharacterWindow = isChecked;
-            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
+            _configuration.Save();
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -139,7 +142,7 @@ public class SettingsTab
                 "Apply profile for your character in your try-on, dye preview or glamour plate window, if it is set.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInTryOn = isChecked;
-            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
+            _configuration.Save();
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -152,7 +155,7 @@ public class SettingsTab
                 "Apply appropriate profile for the adventurer card you are currently looking at.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInCards = isChecked;
-            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
+            _configuration.Save();
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -165,7 +168,7 @@ public class SettingsTab
                 "Apply appropriate profile for the character you are currently inspecting.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInInspect = isChecked;
-            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
+            _configuration.Save();
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -178,7 +181,7 @@ public class SettingsTab
                 "Apply appropriate profile for the character you have currently selected on character select screen during login.", ref isChecked))
         {
             _configuration.ProfileApplicationSettings.ApplyInLobby = isChecked;
-            _configurationService.Save(PluginConfigurationChange.ProfileApplication);
+            _configuration.Save();
             _armatureManager.RebindAllArmatures();
         }
     }
@@ -203,7 +206,7 @@ public class SettingsTab
                 "Controls whether successful execution of chat commands will be acknowledged by separate chat message or not.", ref isChecked))
         {
             _configuration.CommandSettings.PrintSuccessMessages = isChecked;
-            _configurationService.Save(PluginConfigurationChange.Command);
+            _configuration.Save();
         }
     }
     #endregion
@@ -235,7 +238,7 @@ public class SettingsTab
         if (KeySelector.DoubleModifier("Template Deletion Modifier"u8,
             "A modifier you need to hold while clicking the Delete Template button for it to take effect."u8, 100 * ImGuiHelpers.GlobalScale,
             _configuration.UISettings.DeleteTemplateModifier, v => _configuration.UISettings.DeleteTemplateModifier = v))
-            _configurationService.Save(PluginConfigurationChange.Interface);
+            _configuration.Save();
     }
 
     private void DrawOpenWindowAtStart()
@@ -247,7 +250,7 @@ public class SettingsTab
         {
             _configuration.UISettings.OpenWindowAtStart = isChecked;
 
-            _configurationService.Save(PluginConfigurationChange.Interface);
+            _configuration.Save();
         }
     }
 
@@ -261,7 +264,7 @@ public class SettingsTab
             _pluginInterface.UiBuilder.DisableCutsceneUiHide = !isChecked;
             _configuration.UISettings.HideWindowInCutscene = isChecked;
 
-            _configurationService.Save(PluginConfigurationChange.Interface);
+            _configuration.Save();
         }
     }
 
@@ -274,7 +277,7 @@ public class SettingsTab
         {
             _pluginInterface.UiBuilder.DisableUserUiHide = !isChecked;
             _configuration.UISettings.HideWindowWhenUiHidden = isChecked;
-            _configurationService.Save(PluginConfigurationChange.Interface);
+            _configuration.Save();
         }
     }
 
@@ -287,7 +290,7 @@ public class SettingsTab
         {
             _pluginInterface.UiBuilder.DisableGposeUiHide = !isChecked;
             _configuration.UISettings.HideWindowInGPose = isChecked;
-            _configurationService.Save(PluginConfigurationChange.Interface);
+            _configuration.Save();
         }
     }
 
@@ -299,7 +302,7 @@ public class SettingsTab
                 "Controls whether folders in template and profile lists are open by default or not.", ref isChecked))
         {
             _configuration.UISettings.FoldersDefaultOpen = isChecked;
-            _configurationService.Save(PluginConfigurationChange.Interface);
+            _configuration.Save();
         }
     }
 
@@ -311,7 +314,7 @@ public class SettingsTab
                 "Controls whether editor character will be automatically set to the current character during login.", ref isChecked))
         {
             _configuration.EditorConfiguration.SetPreviewToCurrentCharacterOnLogin = isChecked;
-            _configurationService.Save(PluginConfigurationChange.Editor);
+            _configuration.Save();
         }
     }
 
@@ -338,7 +341,7 @@ public class SettingsTab
         {
             _configuration.IntegrationSettings.PenumbraPCPIntegrationEnabled = isChecked;
             _pcpService.SetEnabled(isChecked);
-            _configurationService.Save(PluginConfigurationChange.Integration);
+            _configuration.Save();
         }
     }
 
@@ -369,7 +372,7 @@ public class SettingsTab
                 "Enables ability to edit the root bones.", ref isChecked))
         {
             _configuration.EditorConfiguration.RootPositionEditingEnabled = isChecked;
-            _configurationService.Save(PluginConfigurationChange.Editor);
+            _configuration.Save();
         }
     }
 
@@ -380,7 +383,7 @@ public class SettingsTab
                 "Enables debug mode. Requires plugin restart for all features to become properly initialized.", ref isChecked))
         {
             _configuration.DebuggingModeEnabled = isChecked;
-            _configurationService.Save(PluginConfigurationChange.General);
+            _configuration.Save();
         }
     }
 

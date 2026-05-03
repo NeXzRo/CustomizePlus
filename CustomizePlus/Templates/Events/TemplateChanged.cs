@@ -28,9 +28,10 @@ public class TemplateChanged(LunaLogger log) : EventBase<TemplateChanged.Argumen
     {
         TemplateCombo = -2,
         TemplateFileSystemSelector = -1,
-        TemplateFileSystem,
-        ArmatureManager,
-        ProfileManager,
-        CustomizePlusIpc
+        TemplateFileSystem = 0,
+        DesignHeader = 0,
+        ArmatureManager = 1,
+        ProfileManager = 2,
+        CustomizePlusIpc = 3
     }
 }

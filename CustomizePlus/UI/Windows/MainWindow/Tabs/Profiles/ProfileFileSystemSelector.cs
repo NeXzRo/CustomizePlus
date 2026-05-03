@@ -8,14 +8,13 @@ using CustomizePlus.Profiles.Events;
 using CustomizePlus.UI.Windows.Controls;
 using Dalamud.Interface;
 using Dalamud.Plugin.Services;
-using static CustomizePlus.UI.Windows.MainWindow.Tabs.Profiles.ProfileFileSystemSelector;
+//using static CustomizePlus.UI.Windows.MainWindow.Tabs.Profiles.ProfileFileSystemSelector;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Profiles;
-
+/*
 public class ProfileFileSystemSelector : CPlusFileSystemSelector<Profile, ProfileState>
 {
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
     private readonly ProfileManager _profileManager;
     private readonly ProfileChanged _event;
     private readonly GameObjectService _gameObjectService;
@@ -30,7 +29,7 @@ public class ProfileFileSystemSelector : CPlusFileSystemSelector<Profile, Profil
         set
         {
             _configuration.UISettings.IncognitoMode = value;
-            _configurationService.Save(PluginConfigurationChange.Interface);
+            _configuration.Save();
         }
     }
 
@@ -42,7 +41,6 @@ public class ProfileFileSystemSelector : CPlusFileSystemSelector<Profile, Profil
     public ProfileFileSystemSelector(
         ProfileFileSystem fileSystem,
         PluginConfiguration configuration,
-        ConfigurationService configurationService,
         ProfileManager profileManager,
         ProfileChanged @event,
         GameObjectService gameObjectService,
@@ -51,7 +49,6 @@ public class ProfileFileSystemSelector : CPlusFileSystemSelector<Profile, Profil
         : base(messageService, fileSystem, nameof(ProfileFileSystemSelector))
     {
         _configuration = configuration;
-        _configurationService = configurationService;
         _profileManager = profileManager;
         _event = @event;
         _gameObjectService = gameObjectService;
@@ -77,10 +74,10 @@ public class ProfileFileSystemSelector : CPlusFileSystemSelector<Profile, Profil
     }
 
     protected override uint ExpandedFolderColorValue
-        => ColorId.FolderExpanded.Value();
+        => 0;//ColorId.FolderExpanded.Value();
 
     protected override uint CollapsedFolderColorValue
-        => ColorId.FolderCollapsed.Value();
+        => 0;//ColorId.FolderCollapsed.Value();
 
     protected override bool FoldersDefaultOpen
         => _configuration.UISettings.FoldersDefaultOpen;
@@ -88,7 +85,7 @@ public class ProfileFileSystemSelector : CPlusFileSystemSelector<Profile, Profil
     protected override void DrawLeafName(IFileSystemData<Profile> node, in ProfileState state, bool selected)
     {
         var flag = selected ? TreeNodeFlags.Selected | LeafFlags : LeafFlags;
-        var name = IncognitoMode ? node.Value.Incognito : node.Value.Name.Text;
+        var name = IncognitoMode ? node.Value.Incognito : node.Value.Name;
         using var color = ImGuiColor.Text.Push(state.Color.Value());
         DrawLeafTreeNode(node, flag, name);
     }
@@ -259,3 +256,4 @@ public class ProfileFileSystemSelector : CPlusFileSystemSelector<Profile, Profil
 
     #endregion
 }
+*/

@@ -1,4 +1,5 @@
 using CustomizePlus.Configuration.Data;
+using CustomizePlus.Configuration.Services;
 using CustomizePlus.Core.Helpers;
 using CustomizePlus.Templates;
 using CustomizePlus.Templates.Data;
@@ -8,9 +9,10 @@ using Dalamud.Interface.Utility;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Templates;
 
-public class TemplatePanel : IHeader, IPanel, IDisposable
+public class TemplatePanel : IPanel, IDisposable
 {
-    private readonly TemplateFileSystemSelector _selector;
+    //private readonly TemplateFileSystemSelector _selector;
+    private readonly TemplateFileSystem _fileSystem;
     private readonly TemplateManager _manager;
     private readonly BoneEditorPanel _boneEditor;
     private readonly PluginConfiguration _configuration;
@@ -28,23 +30,20 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
     /// </summary>
     private bool _isEditorEnablePending = false;
 
-    private string SelectionName
+  /*  private string SelectionName
         => _selector.SelectedPaths.Count > 1
             ? "Multiple Templates"
             : _selector.Selected == null
                 ? "No Selection"
                 : _selector.IncognitoMode
                     ? _selector.Selected.Incognito
-                    : _selector.Selected.Name.Text;
+                    : _selector.Selected.Name;*/
 
     public ReadOnlySpan<byte> Id
         => "TemplatePanel"u8;
 
-    public bool Collapsed
-        => false;
-
     public TemplatePanel(
-        TemplateFileSystemSelector selector,
+        TemplateFileSystem fileSystem,
         TemplateManager manager,
         BoneEditorPanel boneEditor,
         PluginConfiguration configuration,
@@ -53,7 +52,7 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
         Logger logger,
         TemplateEditorEvent editorEvent)
     {
-        _selector = selector;
+        _fileSystem = fileSystem;
         _manager = manager;
         _boneEditor = boneEditor;
         _configuration = configuration;
@@ -65,49 +64,35 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
 
         _editorEvent.Subscribe(OnEditorEvent, TemplateEditorEvent.Priority.TemplatePanel);
 
-        _selector.SelectionChanged += SelectorSelectionChanged;
+      //  _selector.SelectionChanged += SelectorSelectionChanged;
     }
+
+    private Template Selection
+        => (Template)_fileSystem.Selection.Selection!.Value;
 
     public void Draw()
     {
-        if (_selector.SelectedPaths.Count > 1)
+        if (_fileSystem.Selection.OrderedNodes.Count > 1) //todo
         {
-            DrawMultiSelection();
+            // DrawMultiSelection();
+            return;
         }
-        else
-        {
-            DrawPanel();
-        }
+
+        DrawPanel();
+
+        if (_fileSystem.Selection.Selection is null || Selection.IsWriteProtected)
+            return;
     }
 
-    public void Draw(Vector2 size)
+   /* public void Draw(Vector2 size)
         => DrawHeader();
-
+   */
     public void Dispose()
     {
         _editorEvent.Unsubscribe(OnEditorEvent);
     }
-
-    private HeaderDrawer.Button LockButton()
-        => _selector.Selected == null
-            ? HeaderDrawer.Button.Invisible
-            : _selector.Selected.IsWriteProtected
-                ? new HeaderDrawer.Button
-                {
-                    Description = "Make this template editable.",
-                    Icon = FontAwesomeIcon.Lock,
-                    OnClick = () => _manager.SetWriteProtection(_selector.Selected!, false),
-                    Disabled = _boneEditor.IsEditorActive
-                }
-                : new HeaderDrawer.Button
-                {
-                    Description = "Write-protect this template.",
-                    Icon = FontAwesomeIcon.LockOpen,
-                    OnClick = () => _manager.SetWriteProtection(_selector.Selected!, true),
-                    Disabled = _boneEditor.IsEditorActive
-                };
-
-    private HeaderDrawer.Button ExportToClipboardButton()
+    
+  /*  private HeaderDrawer.Button ExportToClipboardButton()
         => new()
         {
             Description = "Copy the current template to your clipboard.",
@@ -121,8 +106,8 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
         => HeaderDrawer.Draw(SelectionName, 0, Im.Color.Get(ImGuiColor.FrameBackground).Color,
             1, ExportToClipboardButton(), LockButton(),
             HeaderDrawer.Button.IncognitoButton(_selector.IncognitoMode, v => _selector.IncognitoMode = v));
-
-    private void DrawMultiSelection()
+  */
+   /* private void DrawMultiSelection()
     {
         if (_selector.SelectedPaths.Count == 0)
             return;
@@ -155,20 +140,21 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
 
             table.NextColumn();
             Im.Cursor.FrameAlign();
-            Im.Text(path is IFileSystemData<Template> data ? _selector.IncognitoMode ? data.Value.Incognito : data.Value.Name.Text : string.Empty);
+            Im.Text(path is IFileSystemData<Template> data ? _selector.IncognitoMode ? data.Value.Incognito : data.Value.Name : string.Empty);
 
             table.NextColumn();
             Im.Cursor.FrameAlign();
             Im.Text(_selector.IncognitoMode ? "Incognito is active" : fullName);
         }
-    }
+    }*/
 
     private void DrawPanel()
     {
-        if (_selector.Selected == null)
+        using var table = Im.Table.Begin("##Panel"u8, 1, TableFlags.ScrollY, Im.ContentRegion.Available);
+        if (!table || _fileSystem.Selection.Selection is null)
             return;
 
-        using (var disabled = Im.Disabled(_selector.Selected?.IsWriteProtected ?? true))
+        using (var disabled = Im.Disabled(Selection.IsWriteProtected))
         {
             DrawBasicSettings();
         }
@@ -185,7 +171,7 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
             "Toggle the bone editor for this template", !isEditorAllowed))
         {
             if (!isEditorActive)
-                _boneEditor.EnableEditor(_selector.Selected!);
+                _boneEditor.EnableEditor(Selection);
             else
                 _boneEditor.DisableEditor();
         }
@@ -193,7 +179,7 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
 
     private (bool isEditorAllowed, bool isEditorActive) CanToggleEditor()
     {
-        return ((!_selector.Selected?.IsWriteProtected ?? false) || _configuration.PluginEnabled, _boneEditor.IsEditorActive);
+        return ((_fileSystem.Selection.Selection is not null ? !Selection.IsWriteProtected : false) || _configuration.PluginEnabled, _boneEditor.IsEditorActive);
     }
 
     private void DrawBasicSettings()
@@ -220,15 +206,15 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
 
     private void DrawTemplateNameControl()
     {
-        var name = _newName ?? _selector.Selected!.Name;
+        var name = _newName ?? Selection.Name;
         Im.Item.SetNextWidthFull();
 
-        if (!_selector.IncognitoMode)
+        if (!_configuration.UISettings.IncognitoMode)
         {
             if (Im.Input.Text("##Name"u8, ref name, maxLength: 128))
             {
                 _newName = name;
-                _changedTemplate = _selector.Selected;
+                _changedTemplate = Selection;
             }
 
             if (Im.Item.DeactivatedAfterEdit && _changedTemplate != null)
@@ -241,7 +227,7 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
         else
         {
             Im.Cursor.FrameAlign();
-            Im.Text(_selector.Selected!.Incognito);
+            Im.Text(Selection.Incognito);
         }
     }
 
@@ -249,26 +235,26 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
     {
         try
         {
-            Im.Clipboard.Set(Base64Helper.ExportTemplateToBase64(_selector.Selected!));
+            Im.Clipboard.Set(Base64Helper.ExportTemplateToBase64(Selection));
             _popupSystem.ShowPopup(PopupSystem.Messages.ClipboardDataNotLongTerm);
         }
         catch (Exception ex)
         {
-            _logger.Error($"Could not copy data from template {_selector.Selected!.UniqueId} to clipboard: {ex}");
+            _logger.Error($"Could not copy data from template {Selection.UniqueId} to clipboard: {ex}");
             _popupSystem.ShowPopup(PopupSystem.Messages.ActionError);
         }
     }
 
 
-    private void SelectorSelectionChanged(Template? oldSelection, Template? newSelection, in TemplateFileSystemSelector.TemplateState state)
+  /*  private void SelectorSelectionChanged(Template? oldSelection, Template? newSelection, in TemplateFileSystemSelector.TemplateState state)
     {
         if (!_isEditorEnablePending)
             return;
 
         _isEditorEnablePending = false;
 
-        _boneEditor.EnableEditor(_selector.Selected!);
-    }
+        _boneEditor.EnableEditor(Selection);
+    }*/
 
     private void OnEditorEvent(in TemplateEditorEvent.Arguments args)
     {
@@ -284,13 +270,14 @@ public class TemplatePanel : IHeader, IPanel, IDisposable
         if (!isEditorAllowed || isEditorActive)
             return;
 
-        if(_selector.Selected != template)
+        if(Selection != template)
         {
-            _selector.SelectByValue(template);
+            //_selector.SelectByValue(template);
+            //todo: change selection
 
             _isEditorEnablePending = true;
         }
         else
-            _boneEditor.EnableEditor(_selector.Selected!);
+            _boneEditor.EnableEditor(Selection);
     }
 }

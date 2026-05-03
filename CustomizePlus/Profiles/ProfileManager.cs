@@ -30,7 +30,6 @@ public partial class ProfileManager : IDisposable
     private readonly SaveService _saveService;
     private readonly Logger _logger;
     private readonly PluginConfiguration _configuration;
-    private readonly ConfigurationService _configurationService;
     private readonly ActorManager _actorManager;
     private readonly GameObjectService _gameObjectService;
     private readonly ActorObjectManager _objectManager;
@@ -52,7 +51,6 @@ public partial class ProfileManager : IDisposable
         SaveService saveService,
         Logger logger,
         PluginConfiguration configuration,
-        ConfigurationService configurationService,
         ActorManager actorManager,
         GameObjectService gameObjectService,
         ActorObjectManager objectManager,
@@ -68,7 +66,6 @@ public partial class ProfileManager : IDisposable
         _saveService = saveService;
         _logger = logger;
         _configuration = configuration;
-        _configurationService = configurationService;
         _actorManager = actorManager;
         _gameObjectService = gameObjectService;
         _objectManager = objectManager;
@@ -154,7 +151,7 @@ public partial class ProfileManager : IDisposable
     {
         newName = newName.Trim();
 
-        var oldName = profile.Name.Text;
+        var oldName = profile.Name;
         if (oldName == newName)
             return;
 
@@ -406,7 +403,7 @@ public partial class ProfileManager : IDisposable
 
         DefaultProfile = profile;
         _configuration.DefaultProfile = profile?.UniqueId ?? Guid.Empty;
-        _configurationService.Save(PluginConfigurationChange.General);
+        _configuration.Save();
 
         _logger.Debug($"Set profile {profile?.Incognito ?? "no profile"} as default");
         _event.Invoke(new ProfileChanged.Arguments(ProfileChanged.Type.ChangedDefaultProfile, profile, previousProfile));
@@ -426,7 +423,7 @@ public partial class ProfileManager : IDisposable
 
         DefaultLocalPlayerProfile = profile;
         _configuration.DefaultLocalPlayerProfile = profile?.UniqueId ?? Guid.Empty;
-        _configurationService.Save(PluginConfigurationChange.General);
+        _configuration.Save();
 
         _logger.Debug($"Set profile {profile?.Incognito ?? "no profile"} as default local player profile");
         _event.Invoke(new ProfileChanged.Arguments(ProfileChanged.Type.ChangedDefaultLocalPlayerProfile, profile, previousProfile));

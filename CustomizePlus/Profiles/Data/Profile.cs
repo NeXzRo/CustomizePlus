@@ -25,7 +25,7 @@ public sealed class Profile : ISavable, IFileSystemValue<Profile>
 
     public List<ActorIdentifier> Characters { get; set; } = new();
 
-    public LowerString Name { get; set; } = LowerString.Empty;
+    public string Name { get; set; }
 
     public bool Enabled { get; set; }
     public DateTimeOffset CreationDate { get; set; } = DateTime.UtcNow;
@@ -62,7 +62,7 @@ public sealed class Profile : ISavable, IFileSystemValue<Profile>
     public IFileSystemData<Profile>? Node { get; set; }
 
     string IFileSystemValue.DisplayName
-        => Name.Text;
+        => Name;
 
     public Profile()
     {
@@ -90,7 +90,7 @@ public sealed class Profile : ISavable, IFileSystemValue<Profile>
 
     public override string ToString()
     {
-        return $"Profile '{Name.Text.Incognify()}' on {string.Join(',', Characters.Select(x => x.Incognito(null)))} [{UniqueId}]";
+        return $"Profile '{Name.Incognify()}' on {string.Join(',', Characters.Select(x => x.Incognito(null)))} [{UniqueId}]";
     }
 
     #region Serialization
@@ -104,7 +104,7 @@ public sealed class Profile : ISavable, IFileSystemValue<Profile>
             ["CreationDate"] = CreationDate,
             ["ModifiedDate"] = ModifiedDate,
             ["Characters"] = SerializeCharacters(),
-            ["Name"] = Name.Text,
+            ["Name"] = Name,
             ["Enabled"] = Enabled,
             ["IsWriteProtected"] = IsWriteProtected,
             ["Priority"] = Priority,

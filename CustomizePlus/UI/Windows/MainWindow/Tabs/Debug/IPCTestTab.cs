@@ -15,7 +15,7 @@ using Penumbra.GameData.Structs;
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Debug;
 
 //todo: buttons for Profile.EnableTemplateByUniqueId, Profile.DisableTemplateByUniqueId, Profile.SetPriorityByUniqueId
-public class IPCTestTab //: IDisposable
+public class IPCTestTab : ITab<MainTabType> //: IDisposable
 {
     private const string _ownedTesProfile = "{\"Bones\":{\"n_root\":{\"Translation\":{\"X\":0.0,\"Y\":0.0,\"Z\":0.0},\"Rotation\":{\"X\":0.0,\"Y\":0.0,\"Z\":0.0},\"Scaling\":{\"X\":2.0,\"Y\":2.0,\"Z\":2.0}}}}";
 
@@ -118,7 +118,14 @@ public class IPCTestTab //: IDisposable
             _apiVersion = _getApiVersionIpcFunc();
     }
 
-    public unsafe void Draw()
+    public ReadOnlySpan<byte> Label
+        => "IPC Test"u8;
+
+    public MainTabType Identifier
+        => MainTabType.IPCTest;
+
+
+    public void DrawContent()
     {
         if (_targetCharacterName == null)
             _targetCharacterName = _gameObjectService.GetCurrentPlayerName();

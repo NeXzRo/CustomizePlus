@@ -12,14 +12,12 @@ namespace CustomizePlus.UI.Windows;
 public class CPlusChangeLog
 {
     public const int LastChangelogVersion = 0;
-    private readonly PluginConfiguration _config;
-    private readonly ConfigurationService _configurationService;
+    private readonly PluginConfiguration _configuration;
     public readonly Changelog Changelog;
 
-    public CPlusChangeLog(PluginConfiguration config, ConfigurationService configurationService)
+    public CPlusChangeLog(PluginConfiguration configuration)
     {
-        _config = config;
-        _configurationService = configurationService;
+        _configuration = configuration;
         Changelog = new Changelog("Customize+ update history", ConfigData, Save);
 
         Add2_0_0_0(Changelog);
@@ -48,13 +46,13 @@ public class CPlusChangeLog
     }
 
     private (int, ChangeLogDisplayType) ConfigData()
-        => (_config.ChangelogSettings.LastSeenVersion, _config.ChangelogSettings.ChangeLogDisplayType);
+        => (_configuration.ChangelogSettings.LastSeenVersion, _configuration.ChangelogSettings.ChangeLogDisplayType);
 
     private void Save(int version, ChangeLogDisplayType type)
     {
-        _config.ChangelogSettings.LastSeenVersion = version;
-        _config.ChangelogSettings.ChangeLogDisplayType = type;
-        _configurationService.Save(PluginConfigurationChange.Changelog);
+        _configuration.ChangelogSettings.LastSeenVersion = version;
+        _configuration.ChangelogSettings.ChangeLogDisplayType = type;
+        _configuration.Save();
     }
 
     // i know it's ugly but luna changelog api does expect u8 !!

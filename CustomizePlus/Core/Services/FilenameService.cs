@@ -19,9 +19,22 @@ public class FilenameService(IDalamudPluginInterface pi) : BaseFilePathProvider(
     public readonly string TemplateLockedNodes = Path.Combine(pi.ConfigDirectory.FullName, "template_locked_nodes.json");
     public readonly string TemplateSelectedNodes = Path.Combine(pi.ConfigDirectory.FullName, "template_selected_nodes.json");
     public readonly string TemplateExpandedFolders = Path.Combine(pi.ConfigDirectory.FullName, "template_expanded_folders.json");
+    public readonly string UiConfigurationFile = Path.Combine(pi.ConfigDirectory.FullName, "ui_config.json");
 
     public override List<FileInfo> GetBackupFiles()
-        => [];
+    {
+        var list = new List<FileInfo>()
+        {
+            new(ConfigFile),
+            new(TemplateLockedNodes),
+            new(ProfileLockedNodes),
+        };
+
+        list.AddRange(Templates());
+        list.AddRange(Profiles());
+
+        return list;
+    }
 
     public IEnumerable<FileInfo> Templates()
     {

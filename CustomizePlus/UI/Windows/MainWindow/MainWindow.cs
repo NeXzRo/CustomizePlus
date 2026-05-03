@@ -1,4 +1,5 @@
 using CustomizePlus.Configuration.Data;
+using CustomizePlus.Configuration.Services;
 using CustomizePlus.Core.Helpers;
 using CustomizePlus.Core.Services;
 using CustomizePlus.Templates;
@@ -33,6 +34,8 @@ public class MainWindow : LunaWindow, IDisposable
 
     private readonly TemplateEditorEvent _templateEditorEvent;
 
+    private readonly MainTabBar _mainTabBar;
+
     /// <summary>
     /// Used to force the main window to switch to specific tab
     /// </summary>
@@ -41,12 +44,13 @@ public class MainWindow : LunaWindow, IDisposable
     private Action? _actionAfterTabSwitch = null;
 
     public MainWindow(
-        SettingsTab settingsTab,
+        /*SettingsTab settingsTab,
         TemplatesTab templatesTab,
         ProfilesTab profilesTab,
         MessagesTab messagesTab,
         IPCTestTab ipcTestTab,
-        StateMonitoringTab stateMonitoringTab,
+        StateMonitoringTab stateMonitoringTab,*/
+        MainTabBar mainTabBar,
         PluginStateBlock pluginStateBlock,
         TemplateEditorManager templateEditorManager,
         PluginConfiguration configuration,
@@ -54,12 +58,13 @@ public class MainWindow : LunaWindow, IDisposable
         TemplateEditorEvent templateEditorEvent
         ) : base($"Customize+ {VersionHelper.Version}###CPlusMainWindow")
     {
-        _settingsTab = settingsTab;
+        /*_settingsTab = settingsTab;
         _templatesTab = templatesTab;
         _profilesTab = profilesTab;
         _messagesTab = messagesTab;
         _ipcTestTab = ipcTestTab;
-        _stateMonitoringTab = stateMonitoringTab;
+        _stateMonitoringTab = stateMonitoringTab;*/
+        _mainTabBar = mainTabBar;
 
         _pluginStateBlock = pluginStateBlock;
 
@@ -88,9 +93,9 @@ public class MainWindow : LunaWindow, IDisposable
     public override void Draw()
     {
         var yPos = Im.Cursor.Position.Y;
-        var tabs = GetTabs();
+      //  var tabs = GetTabs();
 
-        using (var disabled = Im.Disabled(_hookingService.RenderHookFailed || _hookingService.MovementHookFailed))
+       /* using (var disabled = Im.Disabled(_hookingService.RenderHookFailed || _hookingService.MovementHookFailed))
         {
             LockWindowClosureIfNeeded();
             ImGuiEx.EzTabBar("##tabs", null, _switchToTab, tabs);
@@ -102,9 +107,11 @@ public class MainWindow : LunaWindow, IDisposable
                 _actionAfterTabSwitch();
                 _actionAfterTabSwitch = null;
             }
-        }
+        }*/
 
-        _pluginStateBlock.Draw(yPos, CalculatePluginStateLeftEdge(tabs));
+        _mainTabBar.Draw();
+
+        //_pluginStateBlock.Draw(yPos, CalculatePluginStateLeftEdge(tabs)); todo
     }
 
     public void OpenSettings()
@@ -113,25 +120,25 @@ public class MainWindow : LunaWindow, IDisposable
         _switchToTab = "Settings";
     }
 
-    private (string name, Action function, Vector4? color, bool child)[] GetTabs()
+   /* private (string name, Action function, Vector4? color, bool child)[] GetTabs()
     {
         if (!_configuration.DebuggingModeEnabled)
         {
             return [
                 ("Settings", _settingsTab.Draw, null, true),
                 ("Templates", _templatesTab.Draw, null, true),
-                ("Profiles", _profilesTab.Draw, null, true),
+               // ("Profiles", _profilesTab.Draw, null, true),
             ];
         }
 
         return [
             ("Settings", _settingsTab.Draw, null, true),
             ("Templates", _templatesTab.Draw, null, true),
-            ("Profiles", _profilesTab.Draw, null, true),
+           // ("Profiles", _profilesTab.Draw, null, true),
             ("IPC Test", _ipcTestTab.Draw, ImGuiColors.DalamudGrey, true),
             ("State monitoring", _stateMonitoringTab.Draw, ImGuiColors.DalamudGrey, true),
         ];
-    }
+    }*/
 
     private static float CalculatePluginStateLeftEdge((string name, Action function, Vector4? color, bool child)[] tabs)
     {
@@ -181,4 +188,14 @@ public class MainWindow : LunaWindow, IDisposable
             });
         }
     }
+}
+
+public enum MainTabType
+{
+    None = -1,
+    Settings = 0,
+    Templates = 1,
+    Profiles = 2,
+    IPCTest = 3,
+    StateMonitoring = 4,
 }

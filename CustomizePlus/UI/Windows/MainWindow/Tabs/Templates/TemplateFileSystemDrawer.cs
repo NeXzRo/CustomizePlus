@@ -1,0 +1,68 @@
+﻿using CustomizePlus.Anamnesis;
+using CustomizePlus.Configuration.Data;
+using CustomizePlus.Templates;
+using CustomizePlus.Templates.Events;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Templates;
+
+public sealed class TemplateFileSystemDrawer : FileSystemDrawer<TemplateFileSystemCache.TemplateData>, IDisposable
+{
+    internal readonly TemplateChanged TemplateChanged;
+    internal readonly TemplateManager TemplateManager;
+    internal readonly PluginConfiguration Configuration;
+
+    public TemplateFileSystemDrawer(MessageService messager,
+        TemplateFileSystem fileSystem,
+        TemplateChanged templateChanged,
+        TemplateManager templateManager,
+        TemplateEditorManager editorManager,
+        PopupSystem popupSystem,
+        PoseFileBoneLoader poseFileBoneLoader,
+        MessageService messageService,
+        PluginConfiguration configuration)
+        : base(messager, fileSystem, new TemplateFilter(configuration))
+    {
+        TemplateChanged = templateChanged;
+        TemplateManager = templateManager;
+        Configuration = configuration;
+
+        Footer.Buttons.AddButton(new NewTemplateButton(templateManager, editorManager, popupSystem), 1000);
+        Footer.Buttons.AddButton(new AnamnesisImportButton(templateManager, editorManager, popupSystem, messageService, poseFileBoneLoader), 800);
+        Footer.Buttons.AddButton(new ImportTemplateButton(templateManager, editorManager, popupSystem), 800);
+        Footer.Buttons.AddButton(new DuplicateTemplatesButton(fileSystem, templateManager, editorManager, popupSystem), 700);
+        Footer.Buttons.AddButton(new DeleteTemplateButton(fileSystem, templateManager, editorManager, popupSystem, configuration), -100);
+
+        DataContext.AddButton(new RenameTemplateInput(this), -1001);
+        DataContext.AddButton(new MoveTemplateInput(this), -1000);
+
+        SortMode = ISortMode.FoldersFirst; //todo?
+    }
+
+    public void Dispose()
+    {
+
+    }
+
+    //todo: can change selection
+
+    public override Vector4 ExpandedFolderColor
+        => ColorId.FolderExpanded.Value().ToVector();
+
+    public override Vector4 CollapsedFolderColor
+        => ColorId.FolderCollapsed.Value().ToVector();
+
+    public override Vector4 FolderLineColor
+        => ColorId.FolderLine.Value().ToVector();
+
+    public override IEnumerable<ISortMode> ValidSortModes
+        => ISortMode.Valid.Values;
+
+    public override ReadOnlySpan<byte> Id
+        => "Templates"u8;
+
+    protected override FileSystemCache<TemplateFileSystemCache.TemplateData> CreateCache()
+        => new TemplateFileSystemCache(this);
+}

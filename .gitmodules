@@ -12,7 +12,7 @@
 	branch = main
 [submodule "submodules/ECommonsLite"]
 	path = submodules/ECommonsLite
-	url = https://github.com/Abelfreyja/ECommonsLite.git
+	url = https://github.com/Aether-Tools/ECommonsLite.git
 	branch = api15
 [submodule "submodules/Luna"]
 	path = submodules/Luna

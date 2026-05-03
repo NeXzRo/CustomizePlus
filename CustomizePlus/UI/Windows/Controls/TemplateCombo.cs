@@ -1,4 +1,5 @@
 using CustomizePlus.Configuration.Data;
+using CustomizePlus.Configuration.Services;
 using CustomizePlus.Profiles;
 using CustomizePlus.Profiles.Data;
 using CustomizePlus.Templates;
@@ -6,30 +7,23 @@ using CustomizePlus.Templates.Data;
 using CustomizePlus.Templates.Events;
 using CustomizePlus.UI;
 using ImSharp;
+using System.Reflection.Emit;
 
 namespace CustomizePlus.UI.Windows.Controls;
 
-public abstract class TemplateComboBase : SimpleFilterCombo<Tuple<Template, string>>, IDisposable
+public abstract class TemplateComboBase : FilterComboBase<TemplateCacheItem>, IDisposable
 {
-    private readonly Func<IReadOnlyList<Tuple<Template, string>>> _generator;
     private readonly PluginConfiguration _configuration;
     private readonly TemplateChanged _templateChanged;
-    // protected readonly TabSelected TabSelected;
 
-    private Template? _currentTemplate;
-
-    protected Tuple<Template, string>? CurrentSelection;
+    protected Template? CurrentTemplate;
 
     protected TemplateComboBase(
-        Func<IReadOnlyList<Tuple<Template, string>>> generator,
         TemplateChanged templateChanged,
-        //TabSelected tabSelected,
         PluginConfiguration configuration)
-        : base(SimpleFilterType.Partwise)
+        : base(new TemplateFilter(), ConfigData.Default with { ComputeWidth = true })
     {
-        _generator = generator;
         _templateChanged = templateChanged;
-        //TabSelected = tabSelected;
         _configuration = configuration;
         _templateChanged.Subscribe(OnTemplateChange, TemplateChanged.Priority.TemplateCombo);
     }
@@ -40,47 +34,63 @@ public abstract class TemplateComboBase : SimpleFilterCombo<Tuple<Template, stri
     void IDisposable.Dispose()
         => _templateChanged.Unsubscribe(OnTemplateChange);
 
-    public override StringU8 DisplayString(in Tuple<Template, string> value)
-        => new(value.Item1.Name.Text);
-
-    public override string FilterString(in Tuple<Template, string> value)
-        => $"{value.Item2}\0{value.Item1.Name.Lower}";
-
-    public override ColorParameter TextColor(in Tuple<Template, string> value)
-        => ColorId.UsedTemplate.Value();
-
-    public override IEnumerable<Tuple<Template, string>> GetBaseItems()
-        => _generator();
-
-    protected override bool DrawItem(in SimpleCacheItem<Tuple<Template, string>> item, int globalIndex, bool selected)
+    protected TemplateCacheItem CreateItem(Template template)
     {
-        using var color = Im.Color.Push(ImGuiColor.Text, item.TextColor);
-        var ret = Im.Selectable(item.DisplayString, selected);
-        DrawPath(item.Item.Item2, item.Item.Item1);
-
-        return ret;
+        var path = template.Node?.FullPath ?? string.Empty;
+        var name = template.Name;
+        if (path == name)
+            path = string.Empty;
+        return new TemplateCacheItem(template, path, name);
     }
 
-    protected override bool IsSelected(SimpleCacheItem<Tuple<Template, string>> item, int globalIndex)
-        => ReferenceEquals(item.Item.Item1, _currentTemplate);
+    protected override bool IsSelected(TemplateCacheItem item, int globalIndex)
+        => item.Template == CurrentTemplate;
 
-    private static void DrawPath(string path, Template template)
+    /*  protected override bool DrawItem(in SimpleCacheItem<TemplateCacheItem> item, int globalIndex, bool selected)
+      {
+          using var color = Im.Color.Push(ImGuiColor.Text, item.TextColor);
+          var ret = Im.Selectable(item.DisplayString, selected);
+          DrawPath(item.Item.Item2, item.Item.Item1);
+
+          return ret;
+      }
+
+      protected override bool IsSelected(SimpleCacheItem<TemplateCacheItem> item, int globalIndex)
+          => ReferenceEquals(item.Item.Item1, _currentTemplate);
+
+      private static void DrawPath(string path, Template template)
+      {
+          if (path.Length <= 0 || template.Name == path)
+              return;
+
+          DrawRightAligned(template.Name, path, Im.Color.Get(ImGuiColor.TextDisabled));
+      }
+
+      protected bool Draw(Template? currentTemplate, string? label, float width)
+      {
+          _currentTemplate = currentTemplate;
+          var name = label ?? "Select Template Here...";
+          var ret = base.Draw("##template"u8, name, string.Empty, width, out var selection);
+          CurrentSelection = selection?.Item;
+
+          _currentTemplate = null;
+
+          return ret;
+      }*/
+
+    public virtual bool Draw(Utf8StringHandler<LabelStringHandlerBuffer> label, Template? currentTemplate, out Template? newSelection, float width)
     {
-        if (path.Length <= 0 || template.Name == path)
-            return;
+        CurrentTemplate = currentTemplate;
+        bool ret;
+        using (ImGuiColor.Text.Push(ImGuiColor.Text))
+        {
+            ret = currentTemplate is null
+                ? base.Draw(label, "Select Template Here..."u8, StringU8.Empty, width, out var result)
+                : base.Draw(label, _configuration.UISettings.IncognitoMode ? currentTemplate!.Incognito : currentTemplate!.Name, StringU8.Empty, width, out result);
+            newSelection = ret ? result.Template : currentTemplate;
+        }
 
-        DrawRightAligned(template.Name, path, Im.Color.Get(ImGuiColor.TextDisabled));
-    }
-
-    protected bool Draw(Template? currentTemplate, string? label, float width)
-    {
-        _currentTemplate = currentTemplate;
-        var name = label ?? "Select Template Here...";
-        var ret = base.Draw("##template"u8, name, string.Empty, width, out var selection);
-        CurrentSelection = selection?.Item;
-
-        _currentTemplate = null;
-
+        CurrentTemplate = null;
         return ret;
     }
 
@@ -107,38 +117,83 @@ public abstract class TemplateComboBase : SimpleFilterCombo<Tuple<Template, stri
         else
             Im.Window.DrawList.Text(start with { X = pos + offset }, color, text);
     }
+
+    protected sealed class TemplateFilter : Utf8FilterBase<TemplateCacheItem>
+    {
+        public override bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
+        {
+            using var _ = ImGuiColor.Text.PushDefault();
+            return base.DrawFilter(label, availableRegion);
+        }
+
+        public override bool WouldBeVisible(in TemplateCacheItem item, int globalIndex)
+            => WouldBeVisible(item.Name.Utf8) || WouldBeVisible(item.Incognito.Utf8) || WouldBeVisible(item.FullPath.Utf8);
+
+        protected override ReadOnlySpan<byte> ToFilterString(in TemplateCacheItem item, int globalIndex)
+            => item.Name.Utf8;
+    }
+
+    protected override bool DrawItem(in TemplateCacheItem item, int globalIndex, bool selected)
+    {
+        using var color = ImGuiColor.Text.Push(ImGuiColor.Text);
+        var name = _configuration.UISettings.IncognitoMode ? item.Incognito.Utf8 : item.Name.Utf8;
+        var ret = Im.Selectable(name, selected);
+        if (!item.FullPath.IsEmpty && !_configuration.UISettings.IncognitoMode)
+        {
+            Im.Line.Same();
+            color.Push(ImGuiColor.Text, Im.Style[ImGuiColor.TextDisabled]);
+            ImEx.TextRightAligned(item.FullPath.Utf8);
+        }
+
+        return ret;
+    }
+
+    protected override float ItemHeight
+        => Im.Style.TextHeightWithSpacing;
+}
+
+public readonly struct TemplateCacheItem(Template template, string path, string name)
+{
+    public readonly Template Template = template;
+    public readonly StringPair Name = new(name);
+    public readonly StringPair Incognito = new(template.Incognito);
+    public readonly StringPair FullPath = new(path);
+
+    public static string Ordering(TemplateCacheItem item)
+        => item.FullPath.Utf16.Length > 0 ? item.FullPath.Utf16 : item.Name.Utf16;
 }
 
 public sealed class TemplateCombo : TemplateComboBase
 {
+    private readonly TemplateManager _templateManager;
     private readonly ProfileManager _profileManager;
 
     public TemplateCombo(
         TemplateManager templateManager,
         ProfileManager profileManager,
         TemplateChanged templateChanged,
-        //TabSelected tabSelected,
         PluginConfiguration configuration)
-        : base(
-            () => templateManager.Templates
-                .Select(d => new Tuple<Template, string>(d, d.Node?.FullPath ?? string.Empty))
-                .OrderBy(d => d.Item2)
-                .ToList(), templateChanged,/* tabSelected, */configuration)
+        : base(templateChanged, configuration)
     {
+        _templateManager = templateManager;
         _profileManager = profileManager;
     }
 
-    public Template? Template
-        => CurrentSelection?.Item1;
-
-    public void Draw(Profile profile, Template? template, int templateIndex)
+    public bool Draw(Utf8StringHandler<LabelStringHandlerBuffer> label, float width, Profile profile, Template? template, int templateIndex)
     {
-        if (!Draw(template, Incognito ? template?.Incognito : template?.Name, Im.ContentRegion.Available.X))
-            return;
+        if (!base.Draw(label, template, out var newTemplate, width))
+            return false;
 
         if (templateIndex >= 0)
-            _profileManager.ChangeTemplate(profile, templateIndex, CurrentSelection!.Item1);
+            _profileManager.ChangeTemplate(profile, templateIndex, newTemplate);
         else
-            _profileManager.AddTemplate(profile, CurrentSelection!.Item1);
+            _profileManager.AddTemplate(profile, newTemplate);
+
+        return true;
     }
+
+    protected override IEnumerable<TemplateCacheItem> GetItems()
+        => _templateManager.Templates
+            .Select(CreateItem)
+            .OrderBy(TemplateCacheItem.Ordering);
 }

@@ -1,4 +1,5 @@
 using CustomizePlus.Configuration.Data;
+using CustomizePlus.Configuration.Services;
 using CustomizePlus.Core.Data;
 using CustomizePlus.Core.Helpers;
 using CustomizePlus.GameData.Extensions;
@@ -15,7 +16,7 @@ namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Profiles;
 
 public class ProfilePanel : IHeader, IPanel
 {
-    private readonly ProfileFileSystemSelector _selector;
+   // private readonly ProfileFileSystemSelector _selector;
     private readonly ProfileManager _manager;
     private readonly PluginConfiguration _configuration;
     private readonly TemplateCombo _templateCombo;
@@ -35,13 +36,13 @@ public class ProfilePanel : IHeader, IPanel
     private int _dragIndex = -1;
 
     private string SelectionName
-        => _selector.SelectedPaths.Count > 1
+        => "todo";/*_selector.SelectedPaths.Count > 1
             ? "Multiple Profiles"
             : _selector.Selected == null
                 ? "No Selection"
                 : _selector.IncognitoMode
                     ? _selector.Selected.Incognito
-                    : _selector.Selected.Name.Text;
+                    : _selector.Selected.Name;*/
 
     public ReadOnlySpan<byte> Id
         => "ProfilePanel"u8;
@@ -50,7 +51,7 @@ public class ProfilePanel : IHeader, IPanel
         => false;
 
     public ProfilePanel(
-        ProfileFileSystemSelector selector,
+        //ProfileFileSystemSelector selector,
         ProfileManager manager,
         PluginConfiguration configuration,
         TemplateCombo templateCombo,
@@ -61,7 +62,7 @@ public class ProfilePanel : IHeader, IPanel
         PopupSystem popupSystem,
         Logger logger)
     {
-        _selector = selector;
+        //_selector = selector;
         _manager = manager;
         _configuration = configuration;
         _templateCombo = templateCombo;
@@ -75,19 +76,19 @@ public class ProfilePanel : IHeader, IPanel
 
     public void Draw()
     {
-        if (_selector.SelectedPaths.Count > 1)
+     /*   if (_selector.SelectedPaths.Count > 1)
         {
             DrawMultiSelection();
         }
         else
         {
             DrawPanel();
-        }
+        }*/
     }
 
     public void Draw(Vector2 size)
         => DrawHeader();
-
+    /*
     private HeaderDrawer.Button LockButton()
         => _selector.Selected == null
             ? HeaderDrawer.Button.Invisible
@@ -115,12 +116,13 @@ public class ProfilePanel : IHeader, IPanel
             Visible = _selector.Selected != null,
             Disabled = false
         };
-
+    */
     private void DrawHeader()
-        => HeaderDrawer.Draw(SelectionName, 0, Im.Color.Get(ImGuiColor.FrameBackground).Color,
+    { }
+      /*  => HeaderDrawer.Draw(SelectionName, 0, Im.Color.Get(ImGuiColor.FrameBackground).Color,
             1, ExportToClipboardButton(), LockButton(),
-            HeaderDrawer.Button.IncognitoButton(_selector.IncognitoMode, v => _selector.IncognitoMode = v));
-
+            HeaderDrawer.Button.IncognitoButton(_selector.IncognitoMode, v => _selector.IncognitoMode = v));*/
+    /*
     private void DrawMultiSelection()
     {
         if (_selector.SelectedPaths.Count == 0)
@@ -154,7 +156,7 @@ public class ProfilePanel : IHeader, IPanel
 
             table.NextColumn();
             Im.Cursor.FrameAlign();
-            Im.Text(path is IFileSystemData<Profile> data ? _selector.IncognitoMode ? data.Value.Incognito : data.Value.Name.Text : string.Empty);
+            Im.Text(path is IFileSystemData<Profile> data ? _selector.IncognitoMode ? data.Value.Incognito : data.Value.Name : string.Empty);
 
             table.NextColumn();
             Im.Cursor.FrameAlign();
@@ -503,7 +505,7 @@ public class ProfilePanel : IHeader, IPanel
 
             table.NextColumn();
 
-            _templateCombo.Draw(_selector.Selected!, template, idx);
+            //_templateCombo.Draw(_selector.Selected!, template, idx); todo
 
             DrawDragDrop(_selector.Selected!, idx);
 
@@ -570,5 +572,5 @@ public class ProfilePanel : IHeader, IPanel
     private void UpdateIdentifiers()
     {
 
-    }
+    }*/
 }

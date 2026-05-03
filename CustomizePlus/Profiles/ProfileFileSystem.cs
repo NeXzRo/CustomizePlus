@@ -70,7 +70,7 @@ public sealed class ProfileFileSystem : BaseFileSystem, IDisposable
                     }
                 }
 
-                CreateDuplicateDataNode(parent, profile.Name.Text, profile);
+                CreateDuplicateDataNode(parent, profile.Name, profile);
                 return;
             case ProfileChanged.Type.Deleted when profile?.Node is { } node:
                 Delete(node);
@@ -82,7 +82,7 @@ public sealed class ProfileFileSystem : BaseFileSystem, IDisposable
                 var old = oldName.FixName();
                 var name = node.Name.ToString();
                 if (old == name || (name.IsDuplicateName(out var baseName, out _) && baseName == old))
-                    RenameWithDuplicates(node, profile.Name.Text);
+                    RenameWithDuplicates(node, profile.Name);
                 return;
         }
     }

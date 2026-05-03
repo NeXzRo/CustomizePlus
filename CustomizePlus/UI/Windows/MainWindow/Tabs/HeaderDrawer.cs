@@ -2,7 +2,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.Utility;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs;
-
+/*
 public static class HeaderDrawer
 {
     private static float ButtonWidth
@@ -96,3 +96,4 @@ public static class HeaderDrawer
         }
     }
 }
+*/

@@ -18,7 +18,7 @@ using System.Numerics;
 
 namespace CustomizePlus.UI.Windows.MainWindow.Tabs.Debug;
 
-public class StateMonitoringTab
+public class StateMonitoringTab : ITab<MainTabType>
 {
     private readonly ProfileManager _profileManager;
     private readonly TemplateManager _templateManager;
@@ -40,7 +40,13 @@ public class StateMonitoringTab
         _gameObjectService = gameObjectService;
     }
 
-    public void Draw()
+    public ReadOnlySpan<byte> Label
+        => "State Monitoring"u8;
+
+    public MainTabType Identifier
+        => MainTabType.StateMonitoring;
+
+    public void DrawContent()
     {
         var showProfiles = Im.Tree.Header($"Profiles ({_profileManager.Profiles.Count})###profiles_header");
 
@@ -208,7 +214,7 @@ public class StateMonitoringTab
             Im.Text($"Root bone: {armature.MainRootBone}");
         }
 
-        Im.Text($"Profile: {armature.Profile.Name.Text.Incognify()} ({armature.Profile.UniqueId})");
+        Im.Text($"Profile: {armature.Profile.Name.Incognify()} ({armature.Profile.UniqueId})");
         Im.Text($"Actor: {armature.ActorIdentifier.IncognitoDebug()}");
         Im.Text($"Last seen: {armature.LastSeen} (UTC)");
         //Im.Text("Profile:");
@@ -220,7 +226,7 @@ public class StateMonitoringTab
         {
             foreach (var kvPair in armature.BoneTemplateBinding)
             {
-                Im.Text($"{BoneData.GetBoneDisplayName(kvPair.Key)} ({kvPair.Key}) -> {kvPair.Value.Name.Text.Incognify()} ({kvPair.Value.UniqueId})");
+                Im.Text($"{BoneData.GetBoneDisplayName(kvPair.Key)} ({kvPair.Key}) -> {kvPair.Value.Name.Incognify()} ({kvPair.Value.UniqueId})");
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using CustomizePlus.Api.Data;
 using CustomizePlus.Configuration.Data;
+using CustomizePlus.Configuration.Services;
 using CustomizePlus.Interop.Ipc;
 using CustomizePlus.Profiles;
 using CustomizePlus.Templates;
@@ -16,7 +17,7 @@ public class PcpService : IRequiredService
     private readonly ProfileManager _profileManager;
     private readonly TemplateManager _templateManager;
     private readonly ActorObjectManager _objects;
-    private readonly PluginConfiguration _config;
+    private readonly PluginConfiguration _configuration;
     private readonly PenumbraIpcHandler _penumbraIpcHandler;
 
     private bool _isEnabled;
@@ -30,16 +31,16 @@ public class PcpService : IRequiredService
         ProfileManager profileManager,
         TemplateManager templateManager,
         ActorObjectManager objects,
-        PluginConfiguration config)
+        PluginConfiguration configuration)
     {
         _penumbraIpcHandler = ipc;
         _log = log;
         _profileManager = profileManager;
         _templateManager = templateManager;
         _objects = objects;
-        _config = config;
+        _configuration = configuration;
 
-        SetEnabled(_config.IntegrationSettings.PenumbraPCPIntegrationEnabled);
+        SetEnabled(_configuration.IntegrationSettings.PenumbraPCPIntegrationEnabled);
     }
 
     public void SetEnabled(bool value)
@@ -65,7 +66,7 @@ public class PcpService : IRequiredService
 
     private void OnPcpCreated(JObject jObj, ushort index, string path)
     {
-        if (!_config.IntegrationSettings.PenumbraPCPIntegrationEnabled)
+        if (!_configuration.IntegrationSettings.PenumbraPCPIntegrationEnabled)
             return;
 
         _log.Debug($"[CPlusPCPService] PcpCreated: Index={index}, Path='{path}'");
@@ -104,7 +105,7 @@ public class PcpService : IRequiredService
 
     private void OnPcpParsed(JObject jObj, string modDirectory, Guid collection)
     {
-        if (!_config.IntegrationSettings.PenumbraPCPIntegrationEnabled)
+        if (!_configuration.IntegrationSettings.PenumbraPCPIntegrationEnabled)
             return;
 
         _log.Debug($"[CPlusPCPService] PcpParsed: ModDirectory='{modDirectory}', Collection={collection}");

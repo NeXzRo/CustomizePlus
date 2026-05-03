@@ -5,7 +5,7 @@ using Dalamud.Interface.ImGuiNotification;
 
 namespace CustomizePlus.Templates;
 
-public sealed class TemplateFileSystem : BaseFileSystem, IDisposable
+public sealed class TemplateFileSystem : BaseFileSystem, IDisposable, IRequiredService
 {
     private readonly TemplateManager _templateManager;
     private readonly TemplateChanged _templateChanged;
@@ -70,7 +70,7 @@ public sealed class TemplateFileSystem : BaseFileSystem, IDisposable
                     }
                 }
 
-                CreateDuplicateDataNode(parent, template.Name.Text, template);
+                CreateDuplicateDataNode(parent, template.Name, template);
                 return;
             case TemplateChanged.Type.Deleted when template?.Node is { } node:
                 Delete(node);
@@ -82,7 +82,7 @@ public sealed class TemplateFileSystem : BaseFileSystem, IDisposable
                 var old = oldName.FixName();
                 var name = node.Name.ToString();
                 if (old == name || (name.IsDuplicateName(out var baseName, out _) && baseName == old))
-                    RenameWithDuplicates(node, template.Name.Text);
+                    RenameWithDuplicates(node, template.Name);
                 return;
         }
     }
