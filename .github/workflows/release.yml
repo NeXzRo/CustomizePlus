@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -44,10 +45,11 @@ jobs:
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
           git clone https://x-access-token:${REPO_TOKEN}@github.com/NeXzRo/Repo.git central-repo
-          cd central-repo
           python3 - <<EOF
           import json
-          with open("repo.json", "r") as f:
+          import os
+          file_path = os.path.join("central-repo", "repo.json")
+          with open(file_path, "r") as f:
               data = json.load(f)
           for entry in data:
               if entry.get("InternalName") == "CustomizePlus":
@@ -55,9 +57,10 @@ jobs:
                   v[-1] = str(int(v[-1]) + 1)
                   new_v = ".".join(v)
                   entry["AssemblyVersion"] = new_v
-          with open("repo.json", "w") as f:
+          with open(file_path, "w") as f:
               json.dump(data, f, indent=2)
           EOF
+          cd central-repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add repo.json
