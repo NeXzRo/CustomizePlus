@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install Dalamud runtime
+        uses: Blooym/setup-dalamud@v1
+        with:
+          branch: api15
+
+      - name: Restore & Build
+        run: |
+          dotnet restore .\CustomizePlus.sln
+          dotnet build .\CustomizePlus.sln -c Release --no-restore -p:Platform=x64
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: api15
+          generate_release_notes: true
+          files: CustomizePlus/bin/x64/Release/CustomizePlus/CustomizePlus.zip
+
+      - name: Update central repo.json
+        shell: bash
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          VERSION_CLEAN=${VERSION#v}
+          git clone https://x-access-token:${REPO_TOKEN}@github.com/NeXzRo/Repo.git central-repo
+          cd central-repo
+          python3 - <<EOF
+          import json, os
+          with open("repo.json", "r") as f:
+              data = json.load(f)
+          for entry in data:
+              if entry.get("InternalName") == "CustomizePlus":
+                  entry["AssemblyVersion"] = "${VERSION_CLEAN}"
+          with open("repo.json", "w") as f:
+              json.dump(data, f, indent=2)
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add repo.json
+          git commit -m "Update CustomizePlus to ${VERSION_CLEAN}"
+          git push
