@@ -21,8 +21,10 @@ jobs:
           fetch-depth: 0
 
       - name: Manual Submodule Setup
+        shell: bash
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
+          mkdir -p submodules
           rm -rf submodules/OtterGui
           git clone https://github.com/Aether-Tools/OtterGui.git submodules/OtterGui
           rm -rf submodules/OtterGui/OtterGuiInternal
