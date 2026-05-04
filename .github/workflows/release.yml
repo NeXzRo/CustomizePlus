@@ -24,11 +24,13 @@ jobs:
         shell: bash
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
+          rm -rf submodules
           mkdir -p submodules
-          rm -rf submodules/OtterGui
-          git clone https://github.com/Aether-Tools/OtterGui.git submodules/OtterGui
-          rm -rf submodules/OtterGui/OtterGuiInternal
-          git clone https://github.com/Aether-Tools/OtterGuiInternal.git submodules/OtterGui/OtterGuiInternal
+          cd submodules
+          git clone --depth 1 https://github.com/Aether-Tools/OtterGui.git OtterGui
+          cd OtterGui
+          git clone --depth 1 https://github.com/Aether-Tools/OtterGuiInternal.git OtterGuiInternal
+          cd ../..
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
