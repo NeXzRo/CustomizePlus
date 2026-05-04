@@ -19,13 +19,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.REPO_TOKEN }}
 
-      - name: Checkout submodules
+      - name: Manual Submodule Setup
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
-          git submodule sync --recursive
-          git submodule update --init --recursive --force
+          rm -rf submodules/OtterGui
+          git clone https://github.com/Aether-Tools/OtterGui.git submodules/OtterGui
+          rm -rf submodules/OtterGui/OtterGuiInternal
+          git clone https://github.com/Aether-Tools/OtterGuiInternal.git submodules/OtterGui/OtterGuiInternal
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
