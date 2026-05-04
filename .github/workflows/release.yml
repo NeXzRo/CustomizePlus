@@ -29,14 +29,14 @@ jobs:
 
       - name: Restore & Build
         run: |
-          dotnet restore .\CustomizePlus.sln
-          dotnet build .\CustomizePlus.sln -c Release --no-restore -p:Platform=x64
+          dotnet restore
+          dotnet build -c Release -p:Platform=x64 --no-restore
 
       - name: Create/Update Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: api15
-          files: CustomizePlus/bin/x64/Release/CustomizePlus/CustomizePlus.zip
+          files: "**/bin/x64/Release/CustomizePlus/CustomizePlus.zip"
 
       - name: Auto-Increment Version & Update Repo
         shell: bash
@@ -55,7 +55,6 @@ jobs:
                   v[-1] = str(int(v[-1]) + 1)
                   new_v = ".".join(v)
                   entry["AssemblyVersion"] = new_v
-                  print(f"New Version: {new_v}")
           with open("repo.json", "w") as f:
               json.dump(data, f, indent=2)
           EOF
