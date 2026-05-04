@@ -12,11 +12,14 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -30,7 +33,7 @@ jobs:
 
       - name: Restore & Build
         run: |
-          git submodule update --init --recursive
+          git submodule update --init --recursive --force
           dotnet restore
           dotnet build -c Release -p:Platform=x64 --no-restore
 
