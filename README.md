@@ -1,3 +1,14 @@
+### Repo URL:
+```
+https://nexzro.github.io/Repo/repo.json
+```
+
+---
+
+
+Paste the URL above into Dalamud → Settings → Experimental → Custom Plugin Repositories to access every plugin at once.
+
+
 # Customize+
 Customize+ is a Dalamud plugin designed to give you better control over your Final Fantasy XIV character appearance. Namely it allows you to apply character bone manipulations during gameplay.
 
