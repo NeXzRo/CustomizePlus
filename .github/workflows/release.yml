@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -32,34 +32,35 @@ jobs:
           dotnet restore .\CustomizePlus.sln
           dotnet build .\CustomizePlus.sln -c Release --no-restore -p:Platform=x64
 
-      - name: Create GitHub Release
+      - name: Create/Update Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: api15
-          generate_release_notes: true
           files: CustomizePlus/bin/x64/Release/CustomizePlus/CustomizePlus.zip
 
-      - name: Update central repo.json
+      - name: Auto-Increment Version & Update Repo
         shell: bash
         env:
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-          VERSION: ${{ github.ref_name }}
         run: |
-          VERSION_CLEAN=${VERSION#v}
           git clone https://x-access-token:${REPO_TOKEN}@github.com/NeXzRo/Repo.git central-repo
           cd central-repo
           python3 - <<EOF
-          import json, os
+          import json
           with open("repo.json", "r") as f:
               data = json.load(f)
           for entry in data:
               if entry.get("InternalName") == "CustomizePlus":
-                  entry["AssemblyVersion"] = "${VERSION_CLEAN}"
+                  v = entry["AssemblyVersion"].split('.')
+                  v[-1] = str(int(v[-1]) + 1)
+                  new_v = ".".join(v)
+                  entry["AssemblyVersion"] = new_v
+                  print(f"New Version: {new_v}")
           with open("repo.json", "w") as f:
               json.dump(data, f, indent=2)
           EOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add repo.json
-          git commit -m "Update CustomizePlus to ${VERSION_CLEAN}"
+          git commit -m "Auto-update CustomizePlus version"
           git push
